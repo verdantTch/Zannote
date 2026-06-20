@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
     QGraphicsSimpleTextItem,
     QMessageBox,
     QWidget,         
+    QComboBox,
     QHBoxLayout,       
     QLabel,           
     QSizePolicy,
@@ -79,6 +80,12 @@ class MainWindow(QMainWindow):
 
         icon = svg_to_icon("assets/logo.svg")
         
+        self.image_selector = QComboBox()
+
+        self.image_selector.currentIndexChanged.connect(
+            self.goto_image
+        )
+        
         self.setWindowIcon(icon)  # fenêtre + barre des tâches
         self.setWindowTitle(
             "Zannote"
@@ -107,11 +114,34 @@ class MainWindow(QMainWindow):
             self.scene
         )
 
+        # Bannière supérieure ===============================================================================
         central_widget = QWidget()
         
         layout = QVBoxLayout(
             central_widget
         )
+        self.banner_widget = QWidget()
+        
+        banner_layout = QHBoxLayout(
+            self.banner_widget
+        )
+        
+        banner_layout.addWidget(
+            QLabel("Image :")
+        )
+        
+        banner_layout.addWidget(
+            self.image_selector
+        )
+        
+        banner_layout.addStretch()
+        
+        layout.addWidget(
+            self.banner_widget
+        )
+        
+        self.banner_widget.hide() # Cacher la bannière avant l'ouverture d'un dossier
+        #  ===============================================================================
         
         self.image_name_label = QLabel()
         
@@ -127,10 +157,6 @@ class MainWindow(QMainWindow):
             padding: 4px;
         }
         """)
-        
-        layout.addWidget(
-            self.image_name_label
-        )
         
         layout.addWidget(
             self.view
@@ -175,6 +201,32 @@ class MainWindow(QMainWindow):
             0,
             0
         )
+        
+        #  Raccourcis clavier ========================
+        QShortcut(
+            QKeySequence("Z"),
+            self,
+            activated=self.undo
+        )
+        
+        QShortcut(
+            QKeySequence("M"),
+            self,
+            activated=self.toggle_numbers
+        )
+        
+        QShortcut(
+            QKeySequence("A"),
+            self,
+            activated=self.previous_image
+        )
+        
+        QShortcut(
+            QKeySequence("S"),
+            self,
+            activated=self.next_image
+        )
+        # ===============================================
 
     # =====================================================
     # TOOLBAR
@@ -261,7 +313,72 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(container)
         
 
+    # =====================================================
+    # Accéder à une image via le menu déroulant
+    # =====================================================
+    def goto_image(self, index):
+    
+        if index < 0:
+            return
+    
+        self.autosave()
+    
+        self.image_manager.current_index = index
+    
+        self.load_current_image()
+        self.sync_image_selector()
 
+        
+        
+    # =====================================================
+    # Mise à jour du menu déroulant
+    # =====================================================
+    def update_image_selector(self):
+
+        current = (
+            self.image_selector.currentIndex()
+        )
+    
+        self.image_selector.blockSignals(
+            True
+        )
+    
+        self.image_selector.clear()
+    
+        for image_path in self.image_manager.images:
+    
+            image_name = Path(
+                image_path
+            ).stem
+    
+            csv_path = os.path.join(
+                self.csv_manager.label_folder,
+                f"{image_name}.csv"
+            )
+    
+            if os.path.exists(csv_path):
+    
+                text = (
+                    f"✓ {Path(image_path).name}"
+                )
+    
+            else:
+    
+                text = (
+                    f"{Path(image_path).name}"
+                )
+    
+            self.image_selector.addItem(
+                text
+            )
+    
+        self.image_selector.setCurrentIndex(
+            current
+        )
+    
+        self.image_selector.blockSignals(
+            False
+        )
     # =====================================================
     # DOSSIER
     # =====================================================
@@ -290,7 +407,38 @@ class MainWindow(QMainWindow):
         )
 
         self.load_current_image()
+        
+        self.image_selector.clear()
 
+        
+        for image_path in self.image_manager.images:
+
+            image_name = Path(
+                image_path
+            ).stem
+        
+            csv_path = os.path.join(
+                self.csv_manager.label_folder,
+                f"{image_name}.csv"
+            )
+        
+            if os.path.exists(csv_path):
+        
+                text = (
+                    f"✓ {Path(image_path).name}"
+                )
+        
+            else:
+        
+                text = (
+                    f"{Path(image_path).name}"
+                )
+        
+            self.image_selector.addItem(
+                text
+            )
+            
+        self.banner_widget.show()
     # =====================================================
     # IMAGE
     # =====================================================
@@ -360,6 +508,10 @@ class MainWindow(QMainWindow):
 
 
         self.update_status()
+        
+
+
+
     # =====================================================
     # ANNOTATIONS
     # =====================================================
@@ -453,6 +605,8 @@ class MainWindow(QMainWindow):
             height,
             self.annotation_manager.annotations
         )
+        
+        self.update_image_selector()
 
     # =====================================================
     # SOURIS
@@ -599,19 +753,25 @@ class MainWindow(QMainWindow):
 
     def next_image(self):
 
-        self.autosave()
-
-        self.image_manager.next_image()
-
-        self.load_current_image()
+        if self.image_manager.current_index < len(self.image_manager.images) - 1:
+    
+            self.image_manager.current_index += 1
+            
+            # Mise à jour de la liste déroulante
+            self.load_current_image()
+            self.sync_image_selector()
 
     def previous_image(self):
 
-        self.autosave()
-
-        self.image_manager.previous_image()
-
-        self.load_current_image()
+        if self.image_manager.current_index > 0:
+    
+            self.image_manager.current_index -= 1
+    
+            self.load_current_image()
+            
+            # Mise à jour de la liste déroulante
+            self.image_selector.blockSignals(True)
+            self.sync_image_selector()
 
     # =====================================================
     # STATUS BAR
@@ -632,18 +792,6 @@ class MainWindow(QMainWindow):
         )
 
         
-        # On retrouve le nom de l'image
-        image_name = Path(
-            self.image_manager.images[
-                self.image_manager.current_index
-            ]
-        ).name
-        # On l'affiche
-        self.image_name_label.setText(
-            image_name
-        )
-        
-        
         zoom = (
             self.view.transform().m11()
             / self.base_zoom
@@ -661,36 +809,30 @@ class MainWindow(QMainWindow):
             f"{total} annotations enregistrées "
         )
         
+    # =====================================================
+    # Afficher / Masquer les numéros 
+    # =====================================================
+    def toggle_numbers(self):
     
-        # =====================================================
-        # CLAVIER
-        # =====================================================
+        self.show_numbers = (
+            not self.show_numbers
+        )
     
-    def keyPressEvent(
-        self,
-        event
-    ):
-
-        if event.key() == Qt.Key.Key_Z:
-
-            self.undo()
-
-        elif event.key() == Qt.Key.Key_M:
-
-            self.show_numbers = (
-                not self.show_numbers
-            )
-
-            self.rebuild_annotations()
-
-        elif event.key() == Qt.Key.Key_S:
-
-            self.next_image()
-
-        elif event.key() == Qt.Key.Key_A:
-
-            self.previous_image()
+        self.rebuild_annotations()
         
+        
+    # =====================================================
+    # Synchronisation de la liste déroulante
+    # =====================================================
+    def sync_image_selector(self):
+
+        self.image_selector.blockSignals(True)
+    
+        self.image_selector.setCurrentIndex(
+            self.image_manager.current_index
+        )
+    
+        self.image_selector.blockSignals(False)
 
     # =====================================================
     # FERMETURE
