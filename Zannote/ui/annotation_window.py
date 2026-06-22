@@ -8,14 +8,17 @@ Created on Fri Jun 12 16:19:14 2026
 from pathlib import Path
 import os
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import (
     QAction,
     QColor,
     QFont,
     QBrush,
     QPen,
+    QIcon,
+    QPainter,
     QShortcut,
+    QPixmap,
     QKeySequence
 )
 
@@ -54,31 +57,21 @@ from managers.csv_manager import (
     CsvManager
 )
 
-from PyQt6.QtGui import QIcon, QPixmap, QPainter
-from PyQt6.QtSvg import QSvgRenderer
-from PyQt6.QtCore import QSize, Qt
+from utils.icons import svg_to_icon
 
 
-def svg_to_icon(path, size=QSize(1024, 1024)):
-    renderer = QSvgRenderer(path)
-
-    pixmap = QPixmap(size)
-    pixmap.fill(Qt.GlobalColor.transparent)
-
-    painter = QPainter(pixmap)
-    renderer.render(painter)
-    painter.end()
-
-    return QIcon(pixmap)
-
-class MainWindow(QMainWindow):
-
-
+class AnnotationWindow(QMainWindow):
     def __init__(self):
 
         super().__init__()
 
         icon = svg_to_icon("assets/logo.svg")
+        
+        # Grand écran =====================
+        self.setWindowState(
+            Qt.WindowState.WindowMaximized
+        )
+        # ================================
         
         self.image_selector = QComboBox()
 
@@ -385,54 +378,52 @@ class MainWindow(QMainWindow):
     # =====================================================
     # DOSSIER
     # =====================================================
-
+    def load_folder(self, folder):
+    
+        self.image_manager.load_folder(folder)
+    
+        if len(self.image_manager.images) == 0:
+    
+            QMessageBox.warning(
+                self,
+                "Aucune image",
+                "Le dossier sélectionné ne contient aucune image ou leur format n'est pas compatible."
+            )
+    
+            self.view.setEnabled(False)
+            self.banner_widget.hide()
+    
+            return
+    
+        label_folder = os.path.join(
+            folder,
+            "Labels"
+        )
+    
+        self.csv_manager = CsvManager(label_folder)
+    
+        self.image_manager.current_index = 0
+    
+        self.update_image_selector()
+    
+        self.load_current_image()
+    
+        self.sync_image_selector()
+    
+        self.banner_widget.show()
+    
+        self.view.setEnabled(True)
+    
+    # Lorsqu'un fichiera déjà été ouvert
     def open_folder(self):
 
         folder = QFileDialog.getExistingDirectory(
             self,
             "Choisir dossier images"
         )
-
-        if not folder:
-            return
-
-        self.image_manager.load_folder(
-            folder
-        )
-        
-        if len(self.image_manager.images) == 0:
-
-            QMessageBox.warning(
-                self,
-                "Aucune image",
-                "Le dossier sélectionné ne contient aucune image ou bien leur format n'est pas compatible."
-            )
-
-            self.view.setEnabled(False)
-        
-            self.banner_widget.hide()
-        
-            return
-
-        label_folder = os.path.join(
-            folder,
-            "Labels"
-        )
-
-        self.csv_manager = CsvManager(
-            label_folder
-        )
-
-        self.load_current_image()
-        
-        # Réinitialisation du menu déroulant
-        self.image_manager.current_index = 0
-        self.update_image_selector()
-        self.load_current_image()
-        self.sync_image_selector()
-        self.banner_widget.show()
-        
-        self.view.setEnabled(True)
+    
+        if folder:
+            self.load_folder(folder)
                    
 
         

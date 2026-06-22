@@ -1,28 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1000" height="1000" viewBox="460 230 520 540" xml:space="preserve">
-<desc>Created with Fabric.js 3.5.0</desc>
-<defs>
-</defs>
-<rect x="0" y="0" width="100%" height="100%" fill="#ffffff" />
-<g transform="matrix(0.7813 0 0 0.7813 500.032 500.018)" id="884410">
-<g style="" vector-effect="non-scaling-stroke">
-		<g transform="matrix(1.4907 0 0 1.4907 487.961 91.683)">
-<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; is-custom-font: none; font-file-url: none; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" x="-640" y="-360" rx="0" ry="0" width="1280" height="720" />
-</g>
-		<g transform="matrix(1.4907 0 0 1.4907 401.2677 -150.3112)">
-<path style="stroke: rgb(0,217,255); stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 8; is-custom-font: none; font-file-url: none; fill: rgb(0,217,255); fill-rule: evenodd; opacity: 1;" transform=" translate(-581.849, -197.6649)" d="M 664.379 315.583 L 461.749 79.7468 L 701.949 277.185 Z" stroke-linecap="round" />
-</g>
-		<g transform="matrix(1.4907 0 0 1.4907 280.0034 -1.4903)">
-<path style="stroke: rgb(0,217,255); stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 8; is-custom-font: none; font-file-url: none; fill: rgb(0,217,255); fill-rule: evenodd; opacity: 1;" transform=" translate(-500.5, -297.5)" d="M 301.833 318 C 298.059 318 295 314.941 295 311.167 L 295 283.833 C 295 280.059 298.059 277 301.833 277 L 699.167 277 C 702.941 277 706 280.059 706 283.833 L 706 311.167 C 706 314.941 702.941 318 699.167 318 Z" stroke-linecap="round" />
-</g>
-		<g transform="matrix(1.4907 0 0 1.4907 280.0005 -57.3907)">
-<path style="stroke: rgb(0,217,255); stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 8; is-custom-font: none; font-file-url: none; fill: rgb(0,217,255); fill-rule: evenodd; opacity: 1;" transform=" translate(-500.5, -260)" d="M 476 298 L 500.5 222 L 525 298 Z" stroke-linecap="round" />
-</g>
-		<g transform="matrix(1.4907 0 0 1.4907 158.7186 147.5684)">
-<path style="stroke: rgb(0,217,255); stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 8; is-custom-font: none; font-file-url: none; fill: rgb(0,217,255); fill-rule: evenodd; opacity: 1;" transform=" translate(-419.139, -397.4925)" d="M 336.609 279.574 L 539.239 515.411 L 299.039 317.973 Z" stroke-linecap="round" />
-</g>
-		<g transform="matrix(1.4907 0 0 1.4907 280.0005 55.9013)">
-<path style="stroke: rgb(0,217,255); stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 8; is-custom-font: none; font-file-url: none; fill: rgb(0,217,255); fill-rule: evenodd; opacity: 1;" transform=" translate(-500.5, -336)" d="M 525 298 L 500.5 374 L 476 298 Z" stroke-linecap="round" />
-</g>
-</g>
-</g>
+<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden" viewBox="268 57 465 483">
+  <g>
+    <rect x="0" y="0" width="1280" height="720" fill="#FFFFFF" />
+    <path d="M664.379 315.583 461.749 79.7468 701.949 277.185Z" stroke="#11BED5" stroke-width="2" stroke-miterlimit="8" fill="#11BED5" fill-rule="evenodd" />
+    <path d="M301.833 318C298.059 318 295 314.941 295 311.167L295 283.833C295 280.059 298.059 277 301.833 277L699.167 277C702.941 277 706 280.059 706 283.833L706 311.167C706 314.941 702.941 318 699.167 318Z" stroke="#11BED5" stroke-width="2" stroke-miterlimit="8" fill="#11BED5" fill-rule="evenodd" />
+    <path d="M476 298 500.5 222 525 298Z" stroke="#11BED5" stroke-width="2" stroke-miterlimit="8" fill="#11BED5" fill-rule="evenodd" />
+    <path d="M336.609 279.574 539.239 515.411 299.039 317.973Z" stroke="#11BED5" stroke-width="2" stroke-miterlimit="8" fill="#11BED5" fill-rule="evenodd" />
+    <path d="M525 298 500.5 374 476 298Z" stroke="#11BED5" stroke-width="2" stroke-miterlimit="8" fill="#11BED5" fill-rule="evenodd" />
+  </g>
 </svg>
