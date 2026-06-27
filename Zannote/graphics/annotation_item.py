@@ -17,17 +17,19 @@ from PyQt6.QtGui import (
     QBrush
 )
 
+Cross_width = 4
+
 class AnnotationItem(QGraphicsItemGroup):
 
     def __init__(self, x, y):
 
         super().__init__()
 
-        size = 10
+        size = 9
 
         pen = QPen(
             QColor(255,0, 0),  # rouge
-            5
+            Cross_width
         )
 
         line1 = QGraphicsLineItem(

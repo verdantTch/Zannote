@@ -25,6 +25,24 @@ class ImageManager:
         self.images = []
         self.current_index = 0
 
+    def contains_images(self, folder):
+    
+        extensions = (
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".bmp",
+            ".tif",
+            ".tiff"
+        )
+    
+        for file in os.listdir(folder):
+    
+            if file.lower().endswith(extensions):
+                return True
+    
+        return False
+    
     def load_folder(
         self,
         folder

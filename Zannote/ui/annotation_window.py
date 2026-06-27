@@ -42,7 +42,8 @@ from PyQt6.QtWidgets import (
 from ui.image_view import ImageView
 
 from graphics.annotation_item import (
-    AnnotationItem
+    AnnotationItem,
+    Cross_width
 )
 
 from managers.annotation_manager import (
@@ -233,6 +234,26 @@ class AnnotationWindow(QMainWindow):
         toolbar = self.addToolBar(
             "Main"
         )
+        
+        home_action = QAction(
+            svg_to_icon("assets/home.svg"),
+            "",
+            self
+        )
+        
+        home_action.setToolTip(
+            "Retour au menu principal"
+        )
+        
+        home_action.triggered.connect(
+            self.return_home
+        )
+        
+        toolbar.addAction(
+            home_action
+        )
+        
+        toolbar.addSeparator()
 
         open_action = QAction(
             "Ouvrir dossier",
@@ -309,6 +330,19 @@ class AnnotationWindow(QMainWindow):
         toolbar.addWidget(container)
         
 
+
+    def return_home(self):
+    
+        self.autosave()
+    
+        self.close()
+    
+        from ui.home_page import HomePage
+    
+        self.home = HomePage()
+    
+        self.home.show()
+        
     # =====================================================
     # Accéder à une image via le menu déroulant
     # =====================================================
@@ -392,8 +426,8 @@ class AnnotationWindow(QMainWindow):
     
             self.view.setEnabled(False)
             self.banner_widget.hide()
-    
-            return
+        
+            return False
     
         label_folder = os.path.join(
             folder,
@@ -413,6 +447,8 @@ class AnnotationWindow(QMainWindow):
         self.banner_widget.show()
     
         self.view.setEnabled(True)
+        return True
+
     
     # Lorsqu'un fichiera déjà été ouvert
     def open_folder(self):
@@ -647,11 +683,29 @@ class AnnotationWindow(QMainWindow):
             ):
                 return
             # ============================================================
+            # On s'assure que deux clics ne sont pas au même endroit
+
+            MIN_DISTANCE = Cross_width + 1 # séparation légèrement supérieure à la taille de la croix pour permettre la sélection
             
-            self.annotation_manager.add_annotation(
-                x,
-                y
-            )
+            can_add = True
+            
+            for ann in self.annotation_manager.annotations:
+            
+                if (
+                    abs(ann.x - x) < MIN_DISTANCE
+                    and
+                    abs(ann.y - y) < MIN_DISTANCE
+                ):
+                    can_add = False
+                    break
+            
+            if can_add:
+            
+                self.annotation_manager.add_annotation(
+                    x,
+                    y
+                )
+
 
             self.rebuild_annotations()
 
@@ -811,9 +865,9 @@ class AnnotationWindow(QMainWindow):
         )
         
         self.left_status.setText(
-            f" Image {current}/{total_images} | "
-            f"Œufs : {total} | "
-            f"Zoom : {zoom:.0f}%"
+            f"Nombre d'œufs : {total}  ||  "
+            f" Image {current}/{total_images}  ||  "
+            f"Zoom : {zoom:.0f}%  "
         )
         
         self.right_status.setText(

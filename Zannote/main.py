@@ -17,3 +17,9 @@ app = QApplication(sys.argv)
 w = HomePage()
 w.show()
 sys.exit(app.exec())
+
+
+
+
+
+

@@ -3,12 +3,15 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QFileDialog
 )
 
 
 from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QSize, Qt
+
+from managers.image_manager import ImageManager
 
 
 from ui.annotation_window import AnnotationWindow
@@ -89,23 +92,33 @@ class HomePage(QWidget):
         """)
         
     def open_annotation(self):
-
+    
         folder = QFileDialog.getExistingDirectory(
             self,
             "Choisir dossier images"
         )
-
+    
         if not folder:
             return
-
+    
+        image_manager = ImageManager()
+    
+        if not image_manager.contains_images(folder):
+    
+            QMessageBox.warning(
+                self,
+                "Aucune image",
+                "Le dossier sélectionné ne contient aucune image."
+            )
+    
+            return
+    
         self.annotation_window = AnnotationWindow()
-
-        self.annotation_window.load_folder(
-            folder
-        )
-
+    
+        self.annotation_window.load_folder(folder)
+    
         self.annotation_window.show()
-
+    
         self.close()
         
     def open_ai_menu(self):
