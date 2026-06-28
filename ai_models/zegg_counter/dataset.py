@@ -74,6 +74,9 @@ class EggDataset(Dataset):
         print(f"{len(self.images)} images chargées")
         
         
+    def set_transform(self, transform):
+        self.transform = transform
+    
     def __len__(self):
 
         return len(self.images)
@@ -270,9 +273,7 @@ class EggDataset(Dataset):
             "image": image,
     
             "heatmap": heatmap,
-    
-            "keypoints": keypoints,
-    
+        
             "image_name": image_name
     
         }

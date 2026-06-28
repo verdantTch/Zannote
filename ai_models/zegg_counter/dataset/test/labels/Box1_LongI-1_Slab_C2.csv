@@ -1,0 +1,4 @@
+image,width,height,egg_id,x,y,confidence
+Box1_LongI-1_Slab_C2,3072,2048,1,1244,1129,1.0
+Box1_LongI-1_Slab_C2,3072,2048,2,1266,1072,1.0
+Box1_LongI-1_Slab_C2,3072,2048,3,1565,826,1.0

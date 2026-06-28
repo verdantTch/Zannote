@@ -5,6 +5,8 @@ Created on Tue Jun 23 12:23:49 2026
 @author: hugoz
 """
 import cv2
+from pathlib import Path
+import os
 
 # Taille de l'image cible en cas de rognage d'image
 TARGET_H = 2048
@@ -20,10 +22,9 @@ SIGMA = 15 # Taille des gaussiennes entourant les points d'intérêt ==> à fair
 
 
 # Training
-BATCH_SIZE = 2 # Permet de regroupper les données pour la bach propagation
-N_EPOCHS = 50 # Nombre de pas
+BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
+N_EPOCHS = 5 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
-LEARNING_RATE = 1e-4
 NUM_WORKERS = 0
 LEARNING_RATE = 1e-4
 
@@ -36,13 +37,18 @@ RANDOM_SEED = 42 # Controle de la répartition aléatoire pour les dataset
 # Test
 TEST_SIZE = 50
 
+# Ratio de changement d'augmentation
+AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on passe au deuxième paramètres d'augmentation 
+
 
 
 # =====================================================
 # Chemins vers les différents répertoires et fichiers
 # =====================================================
 # Racine
-DATASET_PATH = (r"...\ai_models\zegg_counter\dataset")
+RACINE = os.getcwd()
+
+DATASET_PATH = (rf"{RACINE}\dataset")
 
 # Chemin des datas d'entraînement et de validation
 IMAGE_PATH = (rf"{DATASET_PATH}\images")
@@ -60,16 +66,18 @@ VAL_SPLIT = (rf"{SPLIT_PATH}\val.txt")
 
 # Modèles
 MODEL_PATH = (
-    r"...\ai_models\zegg_counter\models"
+    r"...\models"
 )
 
 METADATA_PATH = (
-    r"...\ai_models\zegg_counter\metadata.json"
+    r"...\metadata.json"
 )
 
 TRAINING_HISTORY_PATH = (
-    r"...\ai_models\zegg_counter\training_history.json"
+    r"...\training_history.json"
 )
 
 MODEL_DIR = "models"
 MODEL_PREFIX = "v"
+
+GRADIENT_CLIPPING = 1 # Normalisation pour stabiliser l'apprentissage du modèle

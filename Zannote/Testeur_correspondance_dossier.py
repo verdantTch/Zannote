@@ -7,7 +7,6 @@ Created on Sat Jun 27 16:53:52 2026
 
 import os
 import glob
-from pathlib import Path
 
 def comparer_dossiers(dossier_csv, dossier_jpg):
     """

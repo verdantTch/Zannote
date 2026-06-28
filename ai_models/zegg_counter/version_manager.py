@@ -12,6 +12,9 @@ from pathlib import Path
 import json
 import shutil
 import torch
+import csv
+
+import matplotlib.pyplot as plt
 
 from datetime import datetime
 
@@ -32,6 +35,77 @@ class VersionManager:
             exist_ok=True
         )
 
+
+    def save_loss_curve(self, version_path, history, best_epoch):
+    
+        import matplotlib.pyplot as plt
+    
+        epochs = [h["epoch"] for h in history]
+        train_loss = [h["train_loss"] for h in history]
+        val_loss = [h["val_loss"] for h in history]
+    
+        plt.figure(figsize=(8, 5))
+    
+        plt.plot(
+            epochs,
+            train_loss,
+            label="Train loss",
+            linewidth=2
+        )
+    
+        plt.plot(
+            epochs,
+            val_loss,
+            label="Validation loss",
+            linewidth=2
+        )
+    
+        plt.axvline(
+            best_epoch,
+            color="green",
+            linestyle="--",
+            linewidth=2,
+            label=f"Best epoch ({best_epoch}) for previous models"
+        )
+    
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training history")
+        plt.grid(True)
+        plt.legend()
+    
+        plt.tight_layout()
+    
+        plt.savefig(
+            version_path / "loss_curve.png",
+            dpi=300
+        )
+    
+        plt.close()
+        
+    def save_history(self, version_path, history):
+    
+        with open(
+            version_path / "history.csv",
+            "w",
+            newline="",
+            encoding="utf-8"
+        ) as f:
+    
+            writer = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "epoch",
+                    "train_loss",
+                    "val_loss",
+                    "learning_rate"
+                ]
+            )
+    
+            writer.writeheader()
+            writer.writerows(history)
+            
+            
     def get_next_version(self):
 
         versions = []
@@ -64,6 +138,7 @@ class VersionManager:
             "V"
             f"{max(versions)+1:03d}"
         )
+    
     
     def save_model(
         self,
@@ -126,6 +201,7 @@ class VersionManager:
             version_path
         )
 
+
     def save_json(
         self,
         data,
@@ -144,6 +220,7 @@ class VersionManager:
                 indent=4
             )
 
+
     def save_metadata(
         self,
         version_path,
@@ -160,6 +237,7 @@ class VersionManager:
 
         )
 
+
     def save_metrics(
         self,
         version_path,
@@ -175,6 +253,7 @@ class VersionManager:
             "metrics.json"
 
         )
+
 
     def copy_file(
         self,

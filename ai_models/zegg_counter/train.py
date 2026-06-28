@@ -8,6 +8,7 @@ import torch
 
 from model import EggUNet
 from trainer import Trainer
+from augmentations import get_phase1_transform
 
 from config import (
     IMAGE_PATH, 
@@ -19,23 +20,20 @@ from config import (
     )
 
 from dataset import EggDataset
-from transforms import get_train_transform
+
+
 from split_dataset import (
     create_train_val_split
 )
 
 
-create_train_val_split(
-    image_dir=IMAGE_PATH,
-    test_dir=TEST_IMAGE_PATH,
-    output_dir=SPLIT_PATH
-)
+create_train_val_split()
 
 train_dataset = EggDataset(
     image_dir=IMAGE_PATH,
     label_dir=LABEL_PATH,
     split_file=TRAIN_SPLIT,
-    transform=get_train_transform
+    transform=get_phase1_transform # On initialise l'augmentation (la phase 2 est codée dans le trainer.py)
 )
 
 val_dataset = EggDataset(

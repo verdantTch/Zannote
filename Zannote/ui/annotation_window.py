@@ -165,7 +165,7 @@ class AnnotationWindow(QMainWindow):
 
         self.number_items = []
 
-        self.show_numbers = True
+        self.show_numbers = False
 
         self.create_toolbar()
         

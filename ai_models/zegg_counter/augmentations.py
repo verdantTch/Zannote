@@ -10,7 +10,7 @@ from config import BORDER_MODE
 
 
 # Première phase d'entrainement  == petites variations dans l'image
-def get_phase1_transform(border_color="black"): # Per défaut on remplit en noir 
+def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en noir 
 
     return A.Compose(
         [
@@ -49,7 +49,7 @@ def get_phase1_transform(border_color="black"): # Per défaut on remplit en noir
     )
 
 # Seconde phase d'entrainement  == plus grandes variations dans l'image
-def get_phase2_transform(border_color="black"): # Per défaut on remplit en noir 
+def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en noir 
 
     return A.Compose(
         [
