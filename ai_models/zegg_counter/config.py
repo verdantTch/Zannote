@@ -66,15 +66,15 @@ VAL_SPLIT = (rf"{SPLIT_PATH}\val.txt")
 
 # Modèles
 MODEL_PATH = (
-    r"...\models"
+    rf"{RACINE}\models"
 )
 
 METADATA_PATH = (
-    r"...\metadata.json"
+    rf"{RACINE}\metadata.json"
 )
 
 TRAINING_HISTORY_PATH = (
-    r"...\training_history.json"
+    rf"{RACINE}\training_history.json"
 )
 
 MODEL_DIR = "models"
