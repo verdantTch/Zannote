@@ -22,11 +22,10 @@ SIGMA = 15 # Taille des gaussiennes entourant les points d'intérêt ==> à fair
 
 
 # Training
-BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
+BATCH_SIZE = 4 # Permet de regroupper les données pour la bach propagation
 N_EPOCHS = 5 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
-NUM_WORKERS = 0
-LEARNING_RATE = 1e-4
+NUM_WORKERS = 2
 
 
 # Validation
@@ -48,33 +47,33 @@ AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on p
 # Racine
 RACINE = os.getcwd()
 
-DATASET_PATH = (rf"{RACINE}\dataset")
+DATASET_PATH = os.path.join(RACINE,"dataset")
 
 # Chemin des datas d'entraînement et de validation
-IMAGE_PATH = (rf"{DATASET_PATH}\images")
-LABEL_PATH = (rf"{DATASET_PATH}\labels")
+IMAGE_PATH = os.path.join(DATASET_PATH,"images")
+LABEL_PATH = os.path.join(DATASET_PATH,"labels")
 
 # Chemin des datas de testing (non vues pendant l'entraînement)
-TEST_IMAGE_PATH = (rf"{DATASET_PATH}\test\images")
-TEST_LABEL_PATH = (rf"{DATASET_PATH}\test\labels")
+TEST_IMAGE_PATH = os.path.join(DATASET_PATH,"test","images")
+TEST_LABEL_PATH = os.path.join(DATASET_PATH,"test","labels")
 
 # Chemin vers le dossier split (répartition du dataset en test et validation)
-SPLIT_PATH = (rf"{DATASET_PATH}\split")
-TRAIN_SPLIT = (rf"{SPLIT_PATH}\train.txt")
-VAL_SPLIT = (rf"{SPLIT_PATH}\val.txt")
+SPLIT_PATH = os.path.join(DATASET_PATH,"split")
+TRAIN_SPLIT = os.path.join(DATASET_PATH,"train.txt")
+VAL_SPLIT = os.path.join(DATASET_PATH,"val.txt")
 
 
 # Modèles
 MODEL_PATH = (
-    rf"{RACINE}\models"
+    os.path.join(DATASET_PATH,"models")
 )
 
 METADATA_PATH = (
-    rf"{RACINE}\metadata.json"
+    os.path.join(DATASET_PATH,"metadata.json")
 )
 
 TRAINING_HISTORY_PATH = (
-    rf"{RACINE}\training_history.json"
+    os.path.join(DATASET_PATH,"training_history.json")
 )
 
 MODEL_DIR = "models"
