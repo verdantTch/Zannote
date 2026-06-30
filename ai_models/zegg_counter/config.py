@@ -23,7 +23,7 @@ SIGMA = 15 # Taille des gaussiennes entourant les points d'intérêt ==> à fair
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
-N_EPOCHS = 5 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
+N_EPOCHS = 60 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
 NUM_WORKERS = 0
 

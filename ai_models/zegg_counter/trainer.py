@@ -267,7 +267,7 @@ class Trainer:
             self.logger.info(message)
 
             
-            if val_loss < self.best_loss:
+            if val_loss < self.best_loss: #On évite le surrapprentissage en regardant le loss du dataset de validation
             
                 self.best_loss = val_loss
                 best_epoch = epoch + 1
