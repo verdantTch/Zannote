@@ -65,18 +65,17 @@ VAL_SPLIT = os.path.join(DATASET_PATH,"val.txt")
 
 # Modèles
 MODEL_PATH = (
-    os.path.join(DATASET_PATH,"models")
+    os.path.join(RACINE,"models")
 )
 
 METADATA_PATH = (
-    os.path.join(DATASET_PATH,"metadata.json")
+    os.path.join(RACINE,"metadata.json")
 )
 
 TRAINING_HISTORY_PATH = (
-    os.path.join(DATASET_PATH,"training_history.json")
+    os.path.join(RACINE,"training_history.json")
 )
 
-MODEL_DIR = "models"
 MODEL_PREFIX = "v"
 
 GRADIENT_CLIPPING = 1 # Normalisation pour stabiliser l'apprentissage du modèle

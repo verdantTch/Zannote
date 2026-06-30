@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 from config import (
-    MODEL_DIR
+    MODEL_PATH
 )
 
 
@@ -28,7 +28,7 @@ class VersionManager:
     def __init__(self):
 
         self.model_dir = Path(
-            MODEL_DIR
+            MODEL_PATH
         )
 
         self.model_dir.mkdir(
@@ -139,7 +139,20 @@ class VersionManager:
             f"{max(versions)+1:03d}"
         )
     
+    def cleanup_empty_versions(self):
+
+        for folder in self.model_dir.iterdir():
     
+            if (
+                folder.is_dir()
+                and
+                folder.name.startswith("V")
+            ):
+    
+                if len(list(folder.iterdir())) == 0:
+                    folder.rmdir()
+                
+                
     def save_model(
         self,
         model,
@@ -183,7 +196,8 @@ class VersionManager:
 
 
     def create_version_folder(self):
-
+        self.cleanup_empty_versions()
+        
         version = (
             self.get_next_version()
         )

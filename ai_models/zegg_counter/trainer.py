@@ -195,7 +195,7 @@ class Trainer:
         version_name, version_path = (
             version_manager.create_version_folder()
         )
-        
+        print(version_path.resolve())
         writer = SummaryWriter(
             log_dir=version_path / "tensorboard"
         )
