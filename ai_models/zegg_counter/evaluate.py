@@ -20,10 +20,9 @@ def evaluate_model(
 ):
 
     model.eval()
-
-    total_abs_error = 0
-
-    total_images = 0
+    
+    abs_errors = []
+    relative_errors = []
 
     with torch.no_grad():
 
@@ -47,42 +46,32 @@ def evaluate_model(
                 batch["keypoints"]
             )
 
-            for i in range(
-                len(probabilities)
-            ):
-
-                heatmap = (
-                    probabilities[i, 0]
+            for i in range(len(probabilities)):
+            
+                heatmap = probabilities[i, 0]
+            
+                predicted_points = detect_peaks(
+                    heatmap,
+                    threshold=threshold,
+                    min_distance=min_distance
                 )
+            
+                predicted_count = len(predicted_points)
+                true_count = len(batch_keypoints[i])
+            
+                error = abs(predicted_count - true_count)
+            
+                abs_errors.append(error)
+            
+                if true_count > 0:
+                    relative_errors.append(error / true_count)
+    
+    metrics = {
+        "mae": float(np.mean(abs_errors)) if abs_errors else 0.0,
+        "mae_std": float(np.std(abs_errors)) if abs_errors else 0.0,
+        "relative_mae": float(np.mean(relative_errors)) if relative_errors else 0.0,
+        "relative_mae_std": float(np.std(relative_errors)) if relative_errors else 0.0,
+    }
+    
+    return metrics
 
-                predicted_points = (
-                    detect_peaks(
-                        heatmap,
-                        threshold=threshold,
-                        min_distance=min_distance
-                    )
-                )
-
-                predicted_count = len(
-                    predicted_points
-                )
-
-                true_count = len(
-                    batch_keypoints[i]
-                )
-
-                total_abs_error += abs(
-                    predicted_count
-                    -
-                    true_count
-                )
-
-                total_images += 1
-
-    mae = (
-        total_abs_error
-        /
-        total_images
-    )
-
-    return mae

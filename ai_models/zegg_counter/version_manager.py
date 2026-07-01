@@ -104,7 +104,56 @@ class VersionManager:
     
             writer.writeheader()
             writer.writerows(history)
-            
+    
+    def find_latest_checkpoint(self):
+        """
+        Retourne le checkpoint le plus récent parmi toutes les versions.
+        Retourne None si aucun checkpoint n'existe.
+        """
+    
+        latest_checkpoint = None
+        latest_epoch = -1
+        latest_version = -1
+    
+        for version_folder in self.model_dir.iterdir():
+    
+            if (
+                not version_folder.is_dir()
+                or
+                not version_folder.name.startswith("V")
+            ):
+                continue
+    
+            try:
+                version_number = int(
+                    version_folder.name[1:]
+                )
+            except ValueError:
+                continue
+    
+            for checkpoint in version_folder.glob("checkpoint_epoch_*.pt"):
+    
+                try:
+                    epoch = int(
+                        checkpoint.stem.split("_")[-1]
+                    )
+                except ValueError:
+                    continue
+    
+                if (
+                    version_number > latest_version
+                    or
+                    (
+                        version_number == latest_version
+                        and epoch > latest_epoch
+                    )
+                ):
+    
+                    latest_version = version_number
+                    latest_epoch = epoch
+                    latest_checkpoint = checkpoint
+    
+        return latest_checkpoint
             
     def get_next_version(self):
 

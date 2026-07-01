@@ -10,7 +10,7 @@ import logging
 import glob
 import os
 
-
+from evaluate import evaluate_model
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
 from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT
@@ -48,6 +48,7 @@ class Trainer:
         
         self.model = model.to(device)
         self.best_loss = float("inf")
+        self.best_relative_mae = float("inf")
         self.train_loader = DataLoader(
         
             train_dataset,
@@ -198,6 +199,7 @@ class Trainer:
             'optimizer_state_dict': self.optimizer.state_dict(),
             'scheduler_state_dict': self.scheduler.state_dict(),
             'best_loss': self.best_loss,
+            'best_relative_mae': self.best_relative_mae,
             'scaler_state_dict': self.scaler.state_dict() if self.device.type == "cuda" else None,
             'epochs_without_improvement': self.epochs_without_improvement
         }
@@ -253,6 +255,10 @@ class Trainer:
         
         self.best_loss = checkpoint["best_loss"]
         
+        self.best_relative_mae = checkpoint.get(
+            "best_relative_mae",
+            float("inf")
+        )
         if checkpoint["scaler_state_dict"] is not None and self.device.type == "cuda":
             self.scaler.load_state_dict(checkpoint["scaler_state_dict"])
         
@@ -281,6 +287,8 @@ class Trainer:
         self.logger.info(f"Chargement du checkpoint: {latest_checkpoint}")
         return self.load_checkpoint(latest_checkpoint)
     
+    
+    
     @staticmethod
     def find_checkpoints(version_path):
         """Trouve tous les checkpoints disponibles dans un dossier version"""
@@ -295,6 +303,8 @@ class Trainer:
             })
         
         return sorted(checkpoints, key=lambda x: x['epoch'])    
+    
+    
     
     def fit(
         self,
@@ -408,14 +418,30 @@ class Trainer:
             current_lr = (
                 self.optimizer.param_groups[0]["lr"]
             )
-    
+            
+            
+            metrics = evaluate_model(
+                self.model,
+                self.val_loader,
+                self.device
+            )
+            
+            mae = metrics["mae"]
+            mae_std = metrics["mae_std"]
+            relative_mae = metrics["relative_mae"]
+            relative_mae_std = metrics["relative_mae_std"]
+                        
             history.append(
-                {
-                    "epoch": epoch + 1,
-                    "train_loss": train_loss,
-                    "val_loss": val_loss,
-                    "learning_rate": current_lr
-                }
+            {
+                "epoch": epoch + 1,
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "learning_rate": current_lr,
+                "mae": mae,
+                "mae_std": mae_std,
+                "relative_mae": relative_mae,
+                "relative_mae_std": relative_mae_std
+            }
             )
     
             writer.add_scalar(
@@ -435,6 +461,11 @@ class Trainer:
                 current_lr,
                 epoch + 1
             )
+            
+            writer.add_scalar("Validation/MAE", mae, epoch+1)
+            writer.add_scalar("Validation/MAE_std", mae_std, epoch+1)
+            writer.add_scalar("Validation/Relative_MAE", relative_mae, epoch+1)
+            writer.add_scalar("Validation/Relative_MAE_std", relative_mae_std, epoch+1)
     
             message = (
                 f"Epoch {epoch+1}/{N_EPOCHS}"
@@ -443,20 +474,22 @@ class Trainer:
                 f" | LR={current_lr:.2e}"
                 f" | Train batches={len(self.train_loader)}"
                 f" | Val batches={len(self.val_loader)}"
+                f" | mae={mae}"
+                f" | mae_std={mae_std}"
+                f" | Relative_MAE={100*relative_mae:.2f}%"
+                f" | Relative_MAE_std={100*relative_mae_std:.2f}%"
             )
     
             print(message)
     
             self.logger.info(message)
     
-            is_best = (
-                val_loss < self.best_loss
-            )
+            is_best = relative_mae < self.best_relative_mae
     
             if is_best:
     
                 self.best_loss = val_loss
-    
+                self.best_relative_mae = relative_mae    
                 best_epoch = epoch + 1
     
                 self.epochs_without_improvement = 0
@@ -465,6 +498,11 @@ class Trainer:
                     version_path,
                     {
                         "best_val_loss": float(val_loss),
+                        "best_relative_mae": float(relative_mae),
+                        "mae": float(mae),
+                        "mae_std": float(mae_std),
+                        "relative_mae": float(relative_mae),
+                        "relative_mae_std": float(relative_mae_std),
                         "train_loss": float(train_loss),
                         "epoch": best_epoch
                     }
@@ -539,6 +577,7 @@ class Trainer:
                 "epochs_completed": epoch + 1,
                 "best_epoch": best_epoch,
                 "best_val_loss": self.best_loss,
+                "best_relative_mae": self.best_relative_mae,
                 "learning_rate": LEARNING_RATE,
                 "batch_size": BATCH_SIZE
             }

@@ -20,7 +20,7 @@ from config import (
     )
 
 from dataset import EggDataset
-
+from version_manager import VersionManager
 
 from split_dataset import (
     create_train_val_split
@@ -52,5 +52,43 @@ device = torch.device(
 
 model = EggUNet()
 
-trainer = Trainer(model, train_dataset, val_dataset, device)
-trainer.fit()
+version_manager = VersionManager()
+
+resume_from = None
+
+latest_checkpoint = version_manager.find_latest_checkpoint()
+
+if latest_checkpoint is not None:
+
+    print(
+        f"\nVersion trouvée : {latest_checkpoint.parent.name}"
+    )
+    print(
+        f"Checkpoint : {latest_checkpoint.name}"
+    )
+    while True:
+
+        answer = input(
+            "Reprendre cet entraînement ? [y/n] : "
+        ).strip().lower()
+
+        if answer == "y":
+            resume_from = latest_checkpoint
+            break
+
+        elif answer == "n":
+            break
+
+        else:
+            print("Veuillez répondre par y ou n.")
+
+trainer = Trainer(
+    model,
+    train_dataset,
+    val_dataset,
+    device
+)
+
+trainer.fit(
+    resume_from=resume_from
+)

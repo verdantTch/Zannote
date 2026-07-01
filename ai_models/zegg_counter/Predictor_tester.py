@@ -16,6 +16,8 @@ from predictor import Predictor
 import matplotlib.pyplot as plt
 
 
+
+
 predictor = Predictor(
     model_path="models/V001/best_model.pt",
     device=torch.device("cpu")

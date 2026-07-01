@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Jun 27 19:13:28 2026
-
-@author: hugoz
-"""
 
 import numpy as np
 
@@ -11,17 +6,19 @@ from scipy.ndimage import (
     maximum_filter
 )
 
+from config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
+
 
 def detect_peaks(
     heatmap,
-    threshold=0.5,
-    min_distance=8
+    threshold=PEAK_THRESHOLD,
+    min_distance=PEAK_MIN_DISTANCE
 ):
 
     local_max = (
         maximum_filter(
             heatmap,
-            size=min_distance
+            size=2 * min_distance + 1
         )
         ==
         heatmap
@@ -30,13 +27,25 @@ def detect_peaks(
     peaks = (
         local_max
         &
-        (heatmap > threshold)
+        (heatmap >= threshold)
     )
 
     ys, xs = np.where(
         peaks
     )
 
-    return list(
-        zip(xs, ys)
-    )
+    points = []
+
+    for x, y in zip(xs, ys):
+
+        points.append(
+            (
+                int(x),
+                int(y),
+                float(
+                    heatmap[y, x]
+                )
+            )
+        )
+
+    return points
