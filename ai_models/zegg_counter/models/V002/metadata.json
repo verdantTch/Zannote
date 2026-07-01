@@ -1,0 +1,10 @@
+{
+    "version": "V002",
+    "date": "2026-07-01T09:32:59.492775",
+    "epochs_requested": 60,
+    "start_epoch": 0,
+    "learning_rate": 0.0001,
+    "batch_size": 1,
+    "aug2_ratio": 0.7,
+    "gradient_clipping": 1
+}

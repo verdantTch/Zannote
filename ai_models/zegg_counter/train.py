@@ -52,16 +52,5 @@ device = torch.device(
 
 model = EggUNet()
 
-trainer = Trainer(
-
-    model,
-
-    train_dataset,
-
-    val_dataset,
-
-    device
-
-)
-
+trainer = Trainer(model, train_dataset, val_dataset, device)
 trainer.fit()

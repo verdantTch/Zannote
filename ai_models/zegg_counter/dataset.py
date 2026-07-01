@@ -238,6 +238,8 @@ class EggDataset(Dataset):
             "image": image,
     
             "heatmap": heatmap,
+            
+            "keypoints": keypoints,
         
             "image_name": image_name
     
