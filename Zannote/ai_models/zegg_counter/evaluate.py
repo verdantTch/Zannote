@@ -8,6 +8,7 @@ Created on Sat Jun 27 19:16:23 2026
 import torch
 import numpy as np
 
+from config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 from peak_detection import detect_peaks
 
 
@@ -15,8 +16,8 @@ def evaluate_model(
     model,
     dataloader,
     device,
-    threshold=0.5,
-    min_distance=8
+    threshold=PEAK_THRESHOLD,
+    min_distance=PEAK_MIN_DISTANCE
 ):
 
     model.eval()
@@ -67,6 +68,8 @@ def evaluate_model(
                     relative_errors.append(error / true_count)
     
     metrics = {
+        "threshold": threshold,
+        "min_distance": min_distance,
         "mae": float(np.mean(abs_errors)) if abs_errors else 0.0,
         "mae_std": float(np.std(abs_errors)) if abs_errors else 0.0,
         "relative_mae": float(np.mean(relative_errors)) if relative_errors else 0.0,

@@ -13,7 +13,7 @@ import os
 from evaluate import evaluate_model
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
-from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT
+from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 from version_manager import (
     VersionManager
 )
@@ -437,10 +437,13 @@ class Trainer:
                 "train_loss": train_loss,
                 "val_loss": val_loss,
                 "learning_rate": current_lr,
+                "threshold": PEAK_THRESHOLD,
+                "min_distance": PEAK_MIN_DISTANCE,
                 "mae": mae,
                 "mae_std": mae_std,
                 "relative_mae": relative_mae,
                 "relative_mae_std": relative_mae_std
+            
             }
             )
     
@@ -461,7 +464,8 @@ class Trainer:
                 current_lr,
                 epoch + 1
             )
-            
+            writer.add_scalar("Validation/threshold", PEAK_THRESHOLD, epoch+1)
+            writer.add_scalar("Validation/min_distance", PEAK_MIN_DISTANCE, epoch+1)
             writer.add_scalar("Validation/MAE", mae, epoch+1)
             writer.add_scalar("Validation/MAE_std", mae_std, epoch+1)
             writer.add_scalar("Validation/Relative_MAE", relative_mae, epoch+1)
@@ -474,6 +478,8 @@ class Trainer:
                 f" | LR={current_lr:.2e}"
                 f" | Train batches={len(self.train_loader)}"
                 f" | Val batches={len(self.val_loader)}"
+                f" | threshold={PEAK_THRESHOLD}"
+                f" | min_distance={PEAK_MIN_DISTANCE}"
                 f" | mae={mae}"
                 f" | mae_std={mae_std}"
                 f" | Relative_MAE={100*relative_mae:.2f}%"
@@ -499,6 +505,8 @@ class Trainer:
                     {
                         "best_val_loss": float(val_loss),
                         "best_relative_mae": float(relative_mae),
+                        "threshold": float(PEAK_THRESHOLD),
+                        "min_distance": float(PEAK_MIN_DISTANCE),
                         "mae": float(mae),
                         "mae_std": float(mae_std),
                         "relative_mae": float(relative_mae),
@@ -577,6 +585,8 @@ class Trainer:
                 "epochs_completed": epoch + 1,
                 "best_epoch": best_epoch,
                 "best_val_loss": self.best_loss,
+                "threshold": PEAK_THRESHOLD,
+                "min_distance": PEAK_MIN_DISTANCE,
                 "best_relative_mae": self.best_relative_mae,
                 "learning_rate": LEARNING_RATE,
                 "batch_size": BATCH_SIZE

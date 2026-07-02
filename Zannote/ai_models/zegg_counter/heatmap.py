@@ -8,7 +8,7 @@ Created on Tue Jun 23 10:03:52 2026
 # ai/heatmap.py
 
 import numpy as np
-from config import SIGMA, SIGMA_VAR
+from config import SIGMA #, SIGMA_VAR
 
 
 def gaussian_2d(
@@ -37,24 +37,30 @@ def generate_heatmap(
     keypoints,
     height,
     width,
-    sigma=None
+    # A décomenter en cas de variation de sigma
+    # sigma=None
+    sigma = SIGMA # A supprimer si sigma varie
 ):
     """
     Crée une heatmap à partir d'une liste de points.
     """
-    if sigma is None:
-        sigma = np.random.uniform(
-            SIGMA - SIGMA_VAR,
-            SIGMA + SIGMA_VAR
-        )
+    # A décomenter en cas de variation de sigma
+    # if sigma is None:
+    #     sigma = np.random.uniform(
+    #         SIGMA - SIGMA_VAR,
+    #         SIGMA + SIGMA_VAR
+    #     )
     
     heatmap = np.zeros(
         (height, width),
         dtype=np.float32
     )
 
-    radius = int(np.ceil(3 * sigma))
     
+    # A décomenter en cas de variation de sigma
+    # radius = int(np.ceil(3 * sigma))
+    radius = 3 * sigma # A supprimer si sigma varie
+
     size = radius * 2 + 1
 
     kernel = gaussian_2d(

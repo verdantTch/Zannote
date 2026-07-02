@@ -36,10 +36,7 @@ class VersionManager:
         )
 
 
-    def save_loss_curve(self, version_path, history, best_epoch):
-    
-        import matplotlib.pyplot as plt
-    
+    def save_loss_curve(self, version_path, history, best_epoch):    
         epochs = [h["epoch"] for h in history]
         train_loss = [h["train_loss"] for h in history]
         val_loss = [h["val_loss"] for h in history]

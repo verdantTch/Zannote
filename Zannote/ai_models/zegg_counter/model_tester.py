@@ -5,12 +5,14 @@ Permet d'évaluer les performances d'un modèle post entrainement
 
 import torch
 
+from pathlib import Path
 from torch.utils.data import DataLoader
 
 from model import EggUNet
 from dataset import EggDataset
 
 from evaluate import evaluate_model
+from version_manager import VersionManager
 
 from config import (
     TEST_IMAGE_PATH,
@@ -58,6 +60,7 @@ def main():
     )
 
     model.to(device)
+    model.eval()
 
     # -------------------------
     # Dataset test
@@ -98,28 +101,19 @@ def main():
         device
 
     )
+    
 
-    print("\n===== RESULTATS =====\n")
-
-    print(
-        f"MAE : "
-        f"{metrics['mae']:.2f} oeufs"
+    version_manager = VersionManager()
+    
+    version_manager.save_metrics(
+        Path(MODEL_PATH).parent,
+        metrics
     )
-
-    print(
-        f"MAE std : "
-        f"{metrics['mae_std']:.2f}"
-    )
-
-    print(
-        f"Erreur relative : "
-        f"{metrics['relative_mae']*100:.2f}%"
-    )
-
-    print(
-        f"Erreur relative std : "
-        f"{metrics['relative_mae_std']*100:.2f}%"
-    )
+        
+    print("\n===== RESULTS =====\n")
+    
+    for key, value in metrics.items():
+        print(f"{key:20}: {value}")
 
 
 if __name__ == "__main__":
