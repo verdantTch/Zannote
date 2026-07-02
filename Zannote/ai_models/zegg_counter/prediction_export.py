@@ -9,84 +9,62 @@ Created on Wed Jul  1 11:14:34 2026
 
 import pandas as pd
 import numpy as np
+import cv2
+from pathlib import Path
 
 
-def save_prediction_csv(
-    image_name,
-    width,
-    height,
+def save_zannote_csv(
+    image_path,
     points,
-    output_csv
+    output_folder
 ):
+    image = cv2.imread(str(image_path))
+    height, width = image.shape[:2]
+
+    image_name = Path(image_path).stem
 
     rows = []
 
-    for egg_id, (x, y, conf) in enumerate(
-        points,
-        start=1
-    ):
+    for i, (x, y) in enumerate(points, start=1):
 
-        rows.append(
-            {
-                "image": image_name,
-                "width": width,
-                "height": height,
-                "egg_id": egg_id,
-                "x": x,
-                "y": y,
-                "confidence": conf
-            }
-        )
+        rows.append({
+            "image": image_name,
+            "width": width,
+            "height": height,
+            "egg_id": i,
+            "x": x,
+            "y": y,
+            "confidence": 1.0
+        })
 
-    pd.DataFrame(
-        rows
-    ).to_csv(
-        output_csv,
+    df = pd.DataFrame(rows)
+
+    output_file = Path(output_folder) / f"{image_name}.csv"
+
+    df.to_csv(
+        output_file,
         index=False
     )
 
+    return output_file
 
-def summary_row(
-    image_name,
-    points
-):
 
-    confidences = [
-        p[2]
-        for p in points
-    ]
-
-    if len(confidences):
-
-        mean_conf = float(
-            np.mean(
-                confidences
-            )
-        )
-
-        std_conf = float(
-            np.std(
-                confidences
-            )
-        )
-
-    else:
-
-        mean_conf = 0
-        std_conf = 0
+def summary_row(image_name, points):
 
     return {
-
-        "image":
-            image_name,
-
-        "egg_count":
-            len(points),
-
-        "mean_confidence":
-            mean_conf,
-
-        "std_confidence":
-            std_conf
-
+        "image": image_name,
+        "egg_count": len(points)
     }
+
+def save_summary(rows, output_folder):
+
+    df = pd.DataFrame(rows)
+
+    output_file = Path(output_folder) / "Summary.xlsx"
+
+    df.to_excel(
+        output_file,
+        index=False
+    )
+
+    return output_file

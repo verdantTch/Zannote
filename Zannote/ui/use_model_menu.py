@@ -29,7 +29,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
-    
+    QMessageBox,
+    QApplication
 )
 
 from PyQt6.QtGui import (
@@ -48,6 +49,13 @@ from ai_models.zegg_counter.config import (
     PEAK_THRESHOLD,
     PEAK_MIN_DISTANCE
 )
+
+
+import torch
+from pathlib import Path
+
+from ai_models.zegg_counter.predictor import Predictor
+
 
 
 class UseModelMenu(QMainWindow):
@@ -298,19 +306,19 @@ class UseModelMenu(QMainWindow):
         self.min_distance = QSpinBox()
         self.min_distance.setRange(1, 100)
         self.min_distance.setValue(PEAK_MIN_DISTANCE)
-        self.heatmap_box = QCheckBox(
-            "Sauvegarder les heatmaps"
-        )        
-        self.heatmap_box.setChecked(False)
+        # self.heatmap_box = QCheckBox(
+        #     "Sauvegarder les heatmaps"
+        # )        
+        # self.heatmap_box.setChecked(False)
     
 
         
         
-        advanced_layout.addWidget(QLabel("Seuil"), 0, 0)
+        advanced_layout.addWidget(QLabel("Seuil de détection des oeufs"), 0, 0)
         advanced_layout.addWidget(self.threshold, 0, 1)
-        advanced_layout.addWidget(QLabel("Distance minimale (pixels)"), 1, 0)
+        advanced_layout.addWidget(QLabel("Distance minimale (px) séparant des oeufs"), 1, 0)
         advanced_layout.addWidget(self.min_distance, 1, 1)
-        advanced_layout.addWidget(self.heatmap_box)
+        # advanced_layout.addWidget(self.heatmap_box)
         
         layout.addWidget(advanced_group)
                 
@@ -318,6 +326,10 @@ class UseModelMenu(QMainWindow):
     
         self.run_button = QPushButton(
             "Lancer l'analyse"
+        )
+        
+        self.run_button.clicked.connect(
+            self.run_prediction
         )
     
         self.run_button.setMinimumHeight(
@@ -483,7 +495,67 @@ class UseModelMenu(QMainWindow):
             return
     
         self.image_folder.setText(folder)
-        self.results_folder.setText(folder)
+        
+        
+        
+    def run_prediction(self):
+        self.run_button.setEnabled(False)
+        version = self.model_box.currentData()
+    
+        if version is None:
+            return
+    
+        model_path = self.model_manager.get_model_path(version)
+    
+        predictor = Predictor(
+            model_path=model_path,
+            device=torch.device(
+                "cuda" if torch.cuda.is_available() else "cpu"
+            )
+        )
+    
+        image_folder = Path(self.image_folder.text())
+        
+        output_folder = image_folder / "Labels"
+        
+        nb = predictor.predict_folder(
+        
+            image_folder=image_folder,
+        
+            output_folder=output_folder,
+        
+            threshold=self.threshold.value(),
+        
+            min_distance=self.min_distance.value(),
+        
+            progress_callback=self.update_progress
+        )
+    
+        self.progress.setMaximum(nb)
+        self.progress.setValue(nb)
+    
+        self.progress_label.setText(
+            f"{nb} / {nb} images"
+        )
+        
+        QMessageBox.information(
+            self,
+            "Analyse terminée",
+            f"{nb} image(s) traitée(s).\n\nLes fichiers CSV ont été enregistrés."
+        )
+        self.run_button.setEnabled(True)
+        
+    
+    def update_progress(self, current, total):
+    
+        self.progress.setMaximum(total)
+        self.progress.setValue(current)
+    
+        self.progress_label.setText(
+            f"{current} / {total} images traitées"
+        )
+    
+        QApplication.processEvents()
         
     def get_results_dir(self):
         return Path(self.image_folder.text())

@@ -106,7 +106,6 @@ class HomePage(QWidget):
                 "Aucune image",
                 "Le dossier sélectionné ne contient aucune image."
             )
-    
             return
     
         self.annotation_window = AnnotationWindow()

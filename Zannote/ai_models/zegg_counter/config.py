@@ -18,8 +18,8 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 15 # Taille des gaussiennes entourant les points d'intérêt ==> à faire varier pour une  meilleure convergence du modèle
-
+SIGMA = 12
+SIGMA_VAR = 2.5
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
@@ -41,7 +41,7 @@ AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on p
 
 # Processing de la carte de probabilité prédite par le modèle
 PEAK_THRESHOLD = 0.5 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
-PEAK_MIN_DISTANCE = 8 # Distance minimale en pixel séparant des oeuf
+PEAK_MIN_DISTANCE = 10 # Distance minimale en pixel séparant des oeuf
 
 # =====================================================
 # Chemins vers les différents répertoires et fichiers
