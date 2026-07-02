@@ -28,7 +28,7 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
             ),
             
             A.Defocus(
-                radius=(2,4),          # Large defocus radius
+                radius=(2,3 ),          # Large defocus radius
                 alias_blur=(0.4, 0.6),   # Strong aliasing
                 p=0.5
              ),

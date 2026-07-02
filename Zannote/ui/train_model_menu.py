@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul  2 09:59:16 2026
+
+@author: hugoz
+"""
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -12,13 +18,14 @@ from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtCore import QSize, Qt
 
 from managers.image_manager import ImageManager
+
+
 from ui.annotation_window import AnnotationWindow
+
 from ui.home_card import HomeCard
 from utils.icons import svg_to_icon
 
-
-
-class HomePage(QWidget):
+class TrainModelMenu(QWidget):
 
     def __init__(self):
 
@@ -86,7 +93,8 @@ class HomePage(QWidget):
                 background:#F5F5F5;
             }
         """)
-        
+
+
     def open_annotation(self):
     
         folder = QFileDialog.getExistingDirectory(
@@ -115,7 +123,6 @@ class HomePage(QWidget):
         self.close()
         
     def open_ai_menu(self):
-        from ui.ai_menu import AIMenu
         self.ai_menu = AIMenu()
         self.ai_menu.show()
         self.close()

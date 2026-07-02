@@ -83,9 +83,9 @@ class Trainer:
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer=self.optimizer,
             mode="min",      # on minimise la loss
-            factor=0.5,      # LR = LR × 0.5
-            patience=8,      # attendre 5 epochs
-            threshold=1e-4,  # amélioration minimale
+            factor=0.2,      # LR = LR × 0.5
+            patience=4,      # attendre 5 epochs
+            threshold=1e-3,  # amélioration minimale
             min_lr=1e-7      # ne jamais descendre sous cette valeur
         )
         
