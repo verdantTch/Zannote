@@ -34,7 +34,7 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
              ),
         
             A.ColorJitter(
-                brightness=0.3,
+                brightness=0.4,
                 contrast=0.2,
                 saturation=0.1,
                 hue=0.05,
@@ -73,7 +73,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
              ),
         
             A.ColorJitter(
-                brightness=0.3,
+                brightness=0.45,
                 contrast=0.3,
                 saturation=0.3,
                 hue=0.1,
