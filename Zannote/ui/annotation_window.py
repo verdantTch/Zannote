@@ -431,7 +431,7 @@ class AnnotationWindow(QMainWindow):
     
         label_folder = os.path.join(
             folder,
-            "Labels"
+            "labels"
         )
     
         self.csv_manager = CsvManager(label_folder)

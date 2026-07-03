@@ -112,8 +112,12 @@ def main():
         
     print("\n===== RESULTS =====\n")
     
-    for key, value in metrics.items():
-        print(f"{key:20}: {value}")
+    print(f"Threshold               : {metrics['threshold']:.2f}")
+    print(f"Min distance            : {metrics['min_distance']}")
+    print(f"MAE                     : {metrics['mae']:.2f} eggs")
+    print(f"MAE std                 : {metrics['mae_std']:.2f}")
+    print(f"Relative MAE            : {metrics['relative_mae']*100:.2f}%")
+    print(f"Relative MAE std        : {metrics['relative_mae_std']*100:.2f}%")
 
 
 if __name__ == "__main__":

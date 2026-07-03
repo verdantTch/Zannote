@@ -43,9 +43,7 @@ def evaluate_model(
                 .numpy()
             )
 
-            batch_keypoints = (
-                batch["keypoints"]
-            )
+            true_counts = batch["egg_count"]
 
             for i in range(len(probabilities)):
             
@@ -58,8 +56,12 @@ def evaluate_model(
                 )
             
                 predicted_count = len(predicted_points)
-                true_count = len(batch_keypoints[i])
-            
+                true_count = int(true_counts[i]) 
+                
+                print(
+                    predicted_count,
+                    true_count
+                )
                 error = abs(predicted_count - true_count)
             
                 abs_errors.append(error)

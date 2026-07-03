@@ -234,13 +234,9 @@ class EggDataset(Dataset):
         )
     
         return {
-    
             "image": image,
-    
             "heatmap": heatmap,
-            
             "keypoints": keypoints,
-        
+            "egg_count": len(keypoints),
             "image_name": image_name
-    
         }

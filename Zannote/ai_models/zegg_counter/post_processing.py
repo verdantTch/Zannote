@@ -5,7 +5,6 @@ Created on Thu Jul  2 13:46:06 2026
 @author: hugoz
 """
 
-import numpy as np
 from skimage.feature import peak_local_max
 
 
@@ -14,15 +13,30 @@ def detect_peaks(
     threshold=0.5,
     min_distance=8
 ):
+
     coords = peak_local_max(
         heatmap,
         min_distance=min_distance,
         threshold_abs=threshold
     )
 
-    # passage en (x,y)
-    return [(int(c[1]), int(c[0])) for c in coords]
+    points = []
 
+    for y, x in coords:
+
+        probability = float(
+            heatmap[y, x]
+        )
+
+        points.append(
+            (
+                int(x),
+                int(y),
+                probability
+            )
+        )
+
+    return points
 
 def restore_points(
     points,
@@ -34,7 +48,7 @@ def restore_points(
 ):
     restored = []
 
-    for x, y in points:
+    for x, y, probability in points:
 
         x = (x - left) / scale
         y = (y - top) / scale
@@ -43,7 +57,9 @@ def restore_points(
             restored.append(
                 (
                     int(round(x)),
-                    int(round(y))
+                    int(round(y)),
+                    probability
+
                 )
             )
 

@@ -142,7 +142,7 @@ class AIMenu(QMainWindow):  # Changed from QWidget to QMainWindow
         )
 
         main_layout.addSpacing(
-            50
+            20
         )
 
         main_layout.addLayout(
