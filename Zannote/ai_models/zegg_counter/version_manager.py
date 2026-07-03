@@ -82,6 +82,15 @@ class VersionManager:
         
     def save_history(self, version_path, history):
     
+        if not history:
+            return
+    
+        fieldnames = sorted({
+            key
+            for row in history
+            for key in row.keys()
+        })
+    
         with open(
             version_path / "history.csv",
             "w",
@@ -89,15 +98,12 @@ class VersionManager:
             encoding="utf-8"
         ) as f:
     
-            fieldnames = list(history[0].keys())
-            
-            print(fieldnames)
-            
             writer = csv.DictWriter(
                 f,
-                fieldnames=fieldnames
+                fieldnames=fieldnames,
+                extrasaction="ignore"
             )
-            
+    
             writer.writeheader()
             writer.writerows(history)
     
