@@ -89,22 +89,15 @@ class VersionManager:
             encoding="utf-8"
         ) as f:
     
+            fieldnames = list(history[0].keys())
+            
+            print(fieldnames)
+            
             writer = csv.DictWriter(
                 f,
-                fieldnames=[
-                    "epoch",
-                    "train_loss",
-                    "val_loss",
-                    "learning_rate",
-                    "threshold",
-                    "min_distance",
-                    "mae",
-                    "mae_std",
-                    "relative_mae",
-                    "relative_mae_std"
-                ]
+                fieldnames=fieldnames
             )
-    
+            
             writer.writeheader()
             writer.writerows(history)
     
