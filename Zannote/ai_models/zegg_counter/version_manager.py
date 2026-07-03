@@ -95,7 +95,13 @@ class VersionManager:
                     "epoch",
                     "train_loss",
                     "val_loss",
-                    "learning_rate"
+                    "learning_rate",
+                    "threshold",
+                    "min_distance",
+                    "mae",
+                    "mae_std",
+                    "relative_mae",
+                    "relative_mae_std"
                 ]
             )
     
