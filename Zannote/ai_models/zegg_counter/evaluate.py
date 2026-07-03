@@ -59,8 +59,8 @@ def evaluate_model(
                 true_count = int(true_counts[i]) 
                 
                 print(
-                    predicted_count,
-                    true_count
+                    "Prédition",predicted_count,
+                    " || Nombre réel", true_count
                 )
                 error = abs(predicted_count - true_count)
             
