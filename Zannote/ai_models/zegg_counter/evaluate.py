@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Jun 27 19:16:23 2026
-
 @author: hugoz
 """
-
 import torch
 import numpy as np
-
 from config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 from peak_detection import detect_peaks
-
-
 def evaluate_model(
     model,
     dataloader,
@@ -19,34 +14,24 @@ def evaluate_model(
     threshold=PEAK_THRESHOLD,
     min_distance=PEAK_MIN_DISTANCE
 ):
-
     model.eval()
     
     abs_errors = []
     relative_errors = []
-
     with torch.no_grad():
-
         for batch in dataloader:
-
             images = batch["image"].to(device)
-
             outputs = model(images)
-
             probabilities = torch.sigmoid(
                 outputs
             )
-
             probabilities = (
                 probabilities
                 .cpu()
                 .numpy()
             )
-
             true_counts = batch["egg_count"]
-
             image_names = batch["image_name"]
-
             for i in range(len(probabilities)):
             
                 heatmap = probabilities[i, 0]
@@ -66,6 +51,11 @@ def evaluate_model(
                     f" || Nombre réel={true_count}"
                 )
                 error = abs(predicted_count - true_count)
+
+                # IMPORTANT : cette ligne alimente le MAE (erreur absolue).
+                # Elle doit être appelée pour CHAQUE image, y compris
+                # celles à true_count == 0, sinon "mae" reste 0.0 par défaut.
+                abs_errors.append(error)
             
                 if true_count > 0:
                     relative_errors.append(error / true_count)
@@ -83,4 +73,3 @@ def evaluate_model(
     }
     
     return metrics
-
