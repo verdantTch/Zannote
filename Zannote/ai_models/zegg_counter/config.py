@@ -22,7 +22,7 @@ SIGMA = 16
 SIGMA_VAR = 2.5
 
 # Training
-BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
+BATCH_SIZE = 2 # Permet de regroupper les données pour la bach propagation
 N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 EARLY_STOPPING_PATIENCE = 15
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
