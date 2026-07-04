@@ -8,7 +8,7 @@ import torch
 from pathlib import Path
 from torch.utils.data import DataLoader
 
-from model import EggUNet
+from model_ancien_V001_V002v import EggUNet # à modifier si anciennes versions
 from dataset import EggDataset
 
 from evaluate import evaluate_model

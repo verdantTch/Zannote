@@ -18,20 +18,19 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 16
-SIGMA_VAR = 2.5
+SIGMA = 15
+# SIGMA_VAR = 2.5
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
-N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
-EARLY_STOPPING_PATIENCE = 15
+N_EPOCHS = 60 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
 NUM_WORKERS = 0
 
 
 # Validation
 VAL_RATIO = 0.15
-RANDOM_SEED = 21 # Controle de la répartition aléatoire pour les dataset
+RANDOM_SEED = 42 # Controle de la répartition aléatoire pour les dataset
 
 
 # Test
@@ -47,7 +46,8 @@ PEAK_MIN_DISTANCE = 10 # Distance minimale en pixel séparant des oeuf
 # =====================================================
 # Chemins vers les différents répertoires et fichiers
 # =====================================================
-# Racine
+# Racine (dataset, code, split...) : reste sur le disque local/Colab,
+# car ces données ne changent pas pendant l'entraînement.
 RACINE = os.getcwd()
 
 DATASET_PATH = os.path.join(RACINE,"dataset")
@@ -66,17 +66,48 @@ TRAIN_SPLIT = os.path.join(DATASET_PATH,"train.txt")
 VAL_SPLIT = os.path.join(DATASET_PATH,"val.txt")
 
 
+# -----------------------------------------------------
+# Détection Colab + redirection des sorties (modèles,
+# checkpoints, historique...) vers Google Drive, pour
+# survivre à un plantage/déconnexion de la VM Colab.
+# -----------------------------------------------------
+try:
+    import google.colab  # noqa: F401
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
+
+if IN_COLAB:
+
+    DRIVE_MOUNT_POINT = "/content/drive"
+
+    if not os.path.isdir(os.path.join(DRIVE_MOUNT_POINT, "MyDrive")):
+        from google.colab import drive
+        drive.mount(DRIVE_MOUNT_POINT)
+
+    # Dossier sur votre Drive où seront stockés modèles/checkpoints/historique.
+    # A adapter selon l'organisation que vous voulez sur votre Drive.
+    MODELS_RACINE = os.path.join(
+        DRIVE_MOUNT_POINT, "MyDrive", "Zannote_models"
+    )
+    os.makedirs(MODELS_RACINE, exist_ok=True)
+
+else:
+    # En local (ex: Anaconda), on garde le comportement d'origine
+    MODELS_RACINE = RACINE
+
+
 # Modèles
 MODEL_PATH = (
-    os.path.join(RACINE,"models")
+    os.path.join(MODELS_RACINE,"models")
 )
 
 METADATA_PATH = (
-    os.path.join(RACINE,"metadata.json")
+    os.path.join(MODELS_RACINE,"metadata.json")
 )
 
 TRAINING_HISTORY_PATH = (
-    os.path.join(RACINE,"training_history.json")
+    os.path.join(MODELS_RACINE,"training_history.json")
 )
 
 MODEL_PREFIX = "v"
