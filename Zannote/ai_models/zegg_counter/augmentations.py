@@ -30,11 +30,11 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
             A.Defocus(
                 radius=(2,3),          # Large defocus radius
                 alias_blur=(0.4, 0.6),   # Strong aliasing
-                p=0.5
+                p=0.2
              ),
         
             A.ColorJitter(
-                brightness=0.4,
+                brightness=0.3,
                 contrast=0.2,
                 saturation=0.1,
                 hue=0.05,
@@ -67,13 +67,13 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
             ),
             
             A.Defocus(
-                radius=(2,8),          
+                radius=(2,4),          
                 alias_blur=(0.4, 0.6),   
-                p=0.5
+                p=0.3
              ),
         
             A.ColorJitter(
-                brightness=0.45,
+                brightness=0.35,
                 contrast=0.3,
                 saturation=0.3,
                 hue=0.1,

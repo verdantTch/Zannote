@@ -67,10 +67,11 @@ def evaluate_model(
                 )
                 error = abs(predicted_count - true_count)
             
-                abs_errors.append(error)
-            
                 if true_count > 0:
                     relative_errors.append(error / true_count)
+                else:
+                    # image vide : 0% d'erreur si rien prédit, 100% sinon (ou autre convention à vous)
+                    relative_errors.append(0.0 if predicted_count == 0 else 1.0)
     
     metrics = {
         "threshold": threshold,

@@ -5,12 +5,13 @@ Created on Tue Jun 23 10:05:02 2026
 @author: hugoz
 """
 import torch
-import torch.nn as nn
 import logging
 import glob
 import os
 
+from config import EARLY_STOPPING_PATIENCE
 from evaluate import evaluate_model
+from model import BCEDiceLoss
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
 from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
@@ -72,7 +73,10 @@ class Trainer:
         
         )
         self.criterion = (
-            nn.BCEWithLogitsLoss()
+            BCEDiceLoss(
+                bce_weight=0.5,
+                dice_weight=0.5
+            )
             )
         
         self.optimizer = torch.optim.Adam(
@@ -90,7 +94,7 @@ class Trainer:
         )
         
         # Early stopping si pas d'amélioration
-        self.early_stopping_patience = 15
+        self.early_stopping_patience = EARLY_STOPPING_PATIENCE
         self.epochs_without_improvement = 0
         print(f"Device : {device}")
         if device.type == "cuda":

@@ -18,19 +18,20 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 15
-# SIGMA_VAR = 2.5
+SIGMA = 16
+SIGMA_VAR = 2.5
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
-N_EPOCHS = 60 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
+N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
+EARLY_STOPPING_PATIENCE = 15
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
 NUM_WORKERS = 0
 
 
 # Validation
 VAL_RATIO = 0.15
-RANDOM_SEED = 42 # Controle de la répartition aléatoire pour les dataset
+RANDOM_SEED = 21 # Controle de la répartition aléatoire pour les dataset
 
 
 # Test
