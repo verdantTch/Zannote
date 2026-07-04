@@ -1,13 +1,18 @@
+
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import sys
-sys.path.append('.')  # Ajoute le dossier courant au chemin
+sys.path.append('.')
 
 import torch
 import matplotlib.pyplot as plt
-from predictor import Predictor  # Correction : predictor au lieu de Predictor
+from predictor import Predictor
+
 
 # Créer le prédicteur
 predictor = Predictor(
-    model_path="models/V001/best_model.pt",
+    model_path="models/V002/best_model.pt",
     device=torch.device("cpu")
 )
 
