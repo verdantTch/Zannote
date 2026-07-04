@@ -45,6 +45,8 @@ def evaluate_model(
 
             true_counts = batch["egg_count"]
 
+            image_names = batch["image_name"]
+
             for i in range(len(probabilities)):
             
                 heatmap = probabilities[i, 0]
@@ -57,10 +59,11 @@ def evaluate_model(
             
                 predicted_count = len(predicted_points)
                 true_count = int(true_counts[i]) 
+                image_name = image_names[i]
                 
                 print(
-                    "Prédition",predicted_count,
-                    " || Nombre réel", true_count
+                    f"{image_name} || Prédiction={predicted_count}"
+                    f" || Nombre réel={true_count}"
                 )
                 error = abs(predicted_count - true_count)
             
