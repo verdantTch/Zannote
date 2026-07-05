@@ -18,13 +18,13 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 15
-SIGMA_VAR = 3.5
+SIGMA = 16
+SIGMA_VAR = 0
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
 EARLY_STOPPING_PATIENCE = 15
-N_EPOCHS = 60 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
+N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 1e-4 # Pas d'apprentissage 
 NUM_WORKERS = 0
 
@@ -41,7 +41,7 @@ TEST_SIZE = 50
 AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on passe au deuxième paramètres d'augmentation 
 
 # Processing de la carte de probabilité prédite par le modèle
-PEAK_THRESHOLD = 0.55 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
+PEAK_THRESHOLD = 0.65 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
 PEAK_MIN_DISTANCE = 12 # Distance minimale en pixel séparant des oeuf
 
 # =====================================================
