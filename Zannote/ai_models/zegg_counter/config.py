@@ -18,8 +18,8 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 16
-SIGMA_VAR = 2.5
+SIGMA = 15
+SIGMA_VAR = 3.5
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
@@ -31,7 +31,7 @@ NUM_WORKERS = 0
 
 # Validation
 VAL_RATIO = 0.15
-RANDOM_SEED = 42 # Controle de la répartition aléatoire pour les dataset
+RANDOM_SEED = 21  # 42 Controle de la répartition aléatoire pour les dataset
 
 
 # Test
@@ -41,8 +41,8 @@ TEST_SIZE = 50
 AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on passe au deuxième paramètres d'augmentation 
 
 # Processing de la carte de probabilité prédite par le modèle
-PEAK_THRESHOLD = 0.6 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
-PEAK_MIN_DISTANCE = 13 # Distance minimale en pixel séparant des oeuf
+PEAK_THRESHOLD = 0.55 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
+PEAK_MIN_DISTANCE = 12 # Distance minimale en pixel séparant des oeuf
 
 # =====================================================
 # Chemins vers les différents répertoires et fichiers

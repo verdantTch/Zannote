@@ -56,8 +56,8 @@ class BCEDiceLoss(nn.Module):
 
     def __init__(
         self,
-        bce_weight=0.5,
-        dice_weight=0.5
+        bce_weight=0.4,
+        dice_weight=0.6
     ):
 
         super().__init__()
