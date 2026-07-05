@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jun 26 23:39:29 2026
-
 @author: hugoz
 """
 import torch
-
 from model import EggUNet
 from trainer import Trainer
 from augmentations import get_phase1_transform
-
 from config import (
     IMAGE_PATH, 
     TEST_IMAGE_PATH, 
@@ -18,69 +15,77 @@ from config import (
     TRAIN_SPLIT,
     VAL_SPLIT
     )
-
 from dataset import EggDataset
 from version_manager import VersionManager
-
 from split_dataset import (
     create_train_val_split
 )
-
-
 create_train_val_split()
-
 train_dataset = EggDataset(
     image_dir=IMAGE_PATH,
     label_dir=LABEL_PATH,
     split_file=TRAIN_SPLIT,
     transform=get_phase1_transform # On initialise l'augmentation (la phase 2 est codée dans le trainer.py)
 )
-
 val_dataset = EggDataset(
     image_dir=IMAGE_PATH,
     label_dir=LABEL_PATH,
     split_file=VAL_SPLIT,
     transform=None
 )
-
-
 device = torch.device(
     "cuda"
     if torch.cuda.is_available()
     else "cpu"
 )
-
 model = EggUNet()
-
 version_manager = VersionManager()
-
 resume_from = None
 
 latest_checkpoint = version_manager.find_latest_checkpoint()
+best_checkpoint = version_manager.find_best_checkpoint()
 
-if latest_checkpoint is not None:
+if latest_checkpoint is not None or best_checkpoint is not None:
+
+    if latest_checkpoint is not None:
+        print(
+            f"\nDernier checkpoint trouvé : "
+            f"{latest_checkpoint.parent.name}/{latest_checkpoint.name}"
+        )
+
+    if best_checkpoint is not None:
+        print(
+            f"Meilleur checkpoint trouvé : "
+            f"{best_checkpoint.parent.name}/{best_checkpoint.name}"
+        )
 
     print(
-        f"\nVersion trouvée : {latest_checkpoint.parent.name}"
+        "\nReprendre l'entraînement depuis :"
+        "\n  [d] le Dernier checkpoint (dernier epoch entraîné)"
+        "\n  [b] le meilleur checkpoint (Best relative_mae)"
+        "\n  [n] Non, repartir de zéro"
     )
-    print(
-        f"Checkpoint : {latest_checkpoint.name}"
-    )
+
     while True:
 
         answer = input(
-            "Reprendre cet entraînement ? [y/n] : "
+            "Votre choix [d/b/n] : "
         ).strip().lower()
 
-        if answer == "y":
+        if answer == "d" and latest_checkpoint is not None:
             resume_from = latest_checkpoint
             break
-
-        elif answer == "n":
+        elif answer == "b" and best_checkpoint is not None:
+            resume_from = best_checkpoint
             break
-
+        elif answer == "n":
+            resume_from = None
+            break
         else:
-            print("Veuillez répondre par y ou n.")
+            print(
+                "Réponse invalide ou checkpoint indisponible pour ce choix. "
+                "Veuillez répondre par d, b ou n."
+            )
 
 trainer = Trainer(
     model,
@@ -88,7 +93,6 @@ trainer = Trainer(
     val_dataset,
     device
 )
-
 trainer.fit(
     resume_from=resume_from
 )

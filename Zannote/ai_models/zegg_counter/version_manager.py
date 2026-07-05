@@ -156,7 +156,48 @@ class VersionManager:
                     latest_checkpoint = checkpoint
     
         return latest_checkpoint
-            
+
+    def find_best_checkpoint(self):
+        """
+        Retourne le "best_checkpoint.pt" de la version la plus récente
+        qui en possède un. Retourne None si aucun n'existe.
+
+        Contrairement à find_latest_checkpoint (qui reprend le DERNIER
+        epoch entraîné, même si ses métriques sont moins bonnes), cette
+        méthode reprend l'entraînement depuis l'epoch qui avait obtenu
+        le meilleur relative_mae au moment de sa sauvegarde.
+        """
+
+        best_checkpoint = None
+        best_version = -1
+
+        for version_folder in self.model_dir.iterdir():
+
+            if (
+                not version_folder.is_dir()
+                or
+                not version_folder.name.startswith("V")
+            ):
+                continue
+
+            try:
+                version_number = int(
+                    version_folder.name[1:]
+                )
+            except ValueError:
+                continue
+
+            candidate = version_folder / "best_checkpoint.pt"
+
+            if not candidate.exists():
+                continue
+
+            if version_number > best_version:
+                best_version = version_number
+                best_checkpoint = candidate
+
+        return best_checkpoint
+
     def get_next_version(self):
 
         versions = []
