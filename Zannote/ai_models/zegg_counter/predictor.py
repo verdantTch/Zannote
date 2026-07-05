@@ -161,7 +161,8 @@ class Predictor:
             left,
             top,
             width,
-            height
+            height,
+            predicted_count_head
         ) = self.predict_heatmap(image_path)
     
         points = detect_peaks(
@@ -190,7 +191,7 @@ class Predictor:
     
         with torch.no_grad():
     
-            output = self.model(
+            output, predicted_count = self.model(
                 image
             )
     
@@ -204,5 +205,6 @@ class Predictor:
             left,
             top,
             width,
-            height
+            height,
+            float(predicted_count.cpu().item())
         )

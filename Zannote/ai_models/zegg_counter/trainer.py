@@ -5,13 +5,13 @@ Created on Tue Jun 23 10:05:02 2026
 @author: hugoz
 """
 import torch
+import torch.nn as nn
 import logging
 import glob
 import os
 
-from config import EARLY_STOPPING_PATIENCE
 from evaluate import evaluate_model
-from model import BCEDiceLoss
+from model import BCEDiceCountLoss
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
 from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
@@ -73,9 +73,10 @@ class Trainer:
         
         )
         self.criterion = (
-            BCEDiceLoss(
-                bce_weight=0.5,
-                dice_weight=0.5
+            BCEDiceCountLoss(
+                bce_weight=0.45,
+                dice_weight=0.55,
+                count_weight=0.3
             )
             )
         
@@ -94,7 +95,7 @@ class Trainer:
         )
         
         # Early stopping si pas d'amélioration
-        self.early_stopping_patience = EARLY_STOPPING_PATIENCE
+        self.early_stopping_patience = 15
         self.epochs_without_improvement = 0
         print(f"Device : {device}")
         if device.type == "cuda":
@@ -119,6 +120,7 @@ class Trainer:
     
             images = batch["image"].to(self.device)
             targets = batch["heatmap"].to(self.device)
+            true_counts = batch["egg_count"].to(self.device)
     
             self.optimizer.zero_grad()
             
@@ -126,11 +128,13 @@ class Trainer:
                 "cuda",
                 enabled=(self.device.type == "cuda")
             ):
-                outputs = self.model(images)
+                outputs, predicted_counts = self.model(images)
             
                 loss = self.criterion(
                     outputs,
-                    targets
+                    predicted_counts,
+                    targets,
+                    true_counts
                 )
             
             self.scaler.scale(loss).backward()
@@ -174,17 +178,20 @@ class Trainer:
     
                 images = batch["image"].to(self.device)
                 targets = batch["heatmap"].to(self.device)
+                true_counts = batch["egg_count"].to(self.device)
     
                 with torch.amp.autocast(
                     "cuda",
                     enabled=(self.device.type == "cuda")
                 ):
                 
-                    outputs = self.model(images)
+                    outputs, predicted_counts = self.model(images)
                 
                     loss = self.criterion(
                         outputs,
-                        targets
+                        predicted_counts,
+                        targets,
+                        true_counts
                     )
     
                 running_loss += loss.item()
@@ -414,13 +421,17 @@ class Trainer:
             train_loss = self.train_epoch()
     
             val_loss = self.validate()
+
+            # IMPORTANT : on capture le LR AVANT le scheduler.step(),
+            # car celui-ci peut modifier le LR immédiatement. On veut
+            # enregistrer le LR qui a réellement servi à entraîner CET
+            # epoch, pas celui qui servira au suivant.
+            current_lr = (
+                self.optimizer.param_groups[0]["lr"]
+            )
     
             self.scheduler.step(
                 val_loss
-            )
-    
-            current_lr = (
-                self.optimizer.param_groups[0]["lr"]
             )
             
             

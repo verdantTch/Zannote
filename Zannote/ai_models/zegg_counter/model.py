@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Created on Tue Jun 23 10:04:47 2026
 
@@ -8,6 +8,7 @@ Created on Tue Jun 23 10:04:47 2026
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class DiceLoss(nn.Module):
@@ -56,8 +57,8 @@ class BCEDiceLoss(nn.Module):
 
     def __init__(
         self,
-        bce_weight=0.4,
-        dice_weight=0.6
+        bce_weight=0.45,
+        dice_weight=0.55
     ):
 
         super().__init__()
@@ -81,6 +82,91 @@ class BCEDiceLoss(nn.Module):
             self.bce_weight * bce_loss
             + self.dice_weight * dice_loss
         )
+
+
+class CountLoss(nn.Module):
+    """
+    Loss pour la branche de comptage dédiée (pas pour la heatmap).
+
+    On utilise une L1 RELATIVE plutôt qu'une L1 brute :
+    - Ça correspond exactement à la métrique relative_mae utilisée pour
+      évaluer/sélectionner le meilleur modèle -> on optimise directement
+      ce qu'on cherche à améliorer.
+    - Ça reste dans une échelle bornée (~0-1 en général), comparable à
+      BCE/Dice, sans avoir besoin d'un poids ajusté à la magnitude des
+      comptes (contrairement à une L1 brute où l'erreur peut valoir
+      plusieurs dizaines/centaines selon vos images).
+    - eps évite la division par zéro sur les images sans œuf (true_count=0),
+      cohérent avec ce qu'on avait discuté pour evaluate.py.
+    """
+
+    def __init__(
+        self,
+        eps=1.0
+    ):
+
+        super().__init__()
+        self.eps = eps
+
+    def forward(
+        self,
+        predicted_counts,
+        true_counts
+    ):
+
+        true_counts = true_counts.float()
+
+        relative_error = (
+            torch.abs(predicted_counts - true_counts)
+            / (true_counts + self.eps)
+        )
+
+        return relative_error.mean()
+
+
+class BCEDiceCountLoss(nn.Module):
+    """
+    Loss combinée finale utilisée pour l'entraînement :
+    - BCE + Dice (forme/recouvrement de la heatmap, pixel par pixel)
+    - Count loss (comptage direct, via la branche de comptage dédiée
+      d'EggUNet, PAS via la somme de la heatmap)
+    """
+
+    def __init__(
+        self,
+        bce_weight=0.4,
+        dice_weight=0.6,
+        count_weight=0.3
+    ):
+
+        super().__init__()
+
+        self.bce_dice = BCEDiceLoss(
+            bce_weight=bce_weight,
+            dice_weight=dice_weight
+        )
+
+        self.count = CountLoss()
+
+        self.count_weight = count_weight
+
+    def forward(
+        self,
+        heatmap_logits,
+        predicted_counts,
+        targets,
+        true_counts
+    ):
+
+        bce_dice_loss = self.bce_dice(heatmap_logits, targets)
+
+        count_loss = self.count(predicted_counts, true_counts)
+
+        return (
+            bce_dice_loss
+            + self.count_weight * count_loss
+        )
+
 
 class DoubleConv(
     nn.Module
@@ -201,6 +287,29 @@ class EggUNet(
             512,
             dropout=0.15
         )
+
+        # --- Branche de comptage dédiée (NOUVEAU) ---
+        # Le bottleneck contient l'information globale/contextuelle de
+        # l'image (peu importe la position précise des œufs). On exploite
+        # ça directement pour prédire le compte, sans dépendre de la
+        # heatmap ni de sa somme (qui n'est pas un vrai proxy du compte :
+        # gaussiennes non normalisées à sigma=15, combinées par np.maximum
+        # et non par addition -> la somme dépend de la densité spatiale,
+        # pas seulement du nombre d'œufs).
+        self.count_head = nn.Sequential(
+
+            nn.AdaptiveAvgPool2d(1),   # (B, 512, H, W) -> (B, 512, 1, 1)
+
+            nn.Flatten(),               # (B, 512)
+
+            nn.Linear(512, 128),
+
+            nn.ReLU(inplace=True),
+
+            nn.Dropout(0.2),
+
+            nn.Linear(128, 1)
+        )
         
         #  Décodeur
         self.up4 = nn.ConvTranspose2d(
@@ -280,7 +389,10 @@ class EggUNet(
         p4 = self.pool4(e4)
         
         b = self.bottleneck(p4)
-        
+
+        # Branche de comptage : lit directement le bottleneck, en
+        # parallèle du décodeur. squeeze(1) : (B, 1) -> (B,)
+        predicted_count = self.count_head(b).squeeze(1)
 
         d4 = self.up4(b)
 
@@ -318,6 +430,7 @@ class EggUNet(
         )
         
         d1 = self.dec1(d1)
-        
-        return self.final(d1)
-        
+
+        heatmap = self.final(d1)
+
+        return heatmap, predicted_count

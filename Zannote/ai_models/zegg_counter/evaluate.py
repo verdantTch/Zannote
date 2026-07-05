@@ -21,7 +21,7 @@ def evaluate_model(
     with torch.no_grad():
         for batch in dataloader:
             images = batch["image"].to(device)
-            outputs = model(images)
+            outputs, predicted_counts_head = model(images)
             probabilities = torch.sigmoid(
                 outputs
             )

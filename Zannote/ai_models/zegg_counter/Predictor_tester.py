@@ -12,13 +12,13 @@ from predictor import Predictor
 
 # Créer le prédicteur
 predictor = Predictor(
-    model_path="models/V002/best_model.pt",
+    model_path="models/V003/best_model.pt",
     device=torch.device("cpu")
 )
 
 # Prédire avec l'image (chemin à adapter !)
 try:
-    heatmap, scale, left, top, width, height = predictor.predict_heatmap("test.png")
+    heatmap, scale, left, top, width, height = predictor.predict_heatmap("test.jpg")
     print(f"Heatmap shape: {heatmap.shape}")
     print(f"Scale: {scale}, Left: {left}, Top: {top}, Width: {width}, Height: {height}")
     
