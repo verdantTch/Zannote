@@ -11,7 +11,7 @@ import glob
 import os
 
 from evaluate import evaluate_model
-from model import BCEDiceCountLoss
+from model import BCEDiceLoss
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
 from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
@@ -73,10 +73,9 @@ class Trainer:
         
         )
         self.criterion = (
-            BCEDiceCountLoss(
-                bce_weight=0.45,
-                dice_weight=0.55,
-                count_weight=0.3
+            BCEDiceLoss(
+                bce_weight=0.5,
+                dice_weight=0.5
             )
             )
         
@@ -120,7 +119,6 @@ class Trainer:
     
             images = batch["image"].to(self.device)
             targets = batch["heatmap"].to(self.device)
-            true_counts = batch["egg_count"].to(self.device)
     
             self.optimizer.zero_grad()
             
@@ -128,13 +126,11 @@ class Trainer:
                 "cuda",
                 enabled=(self.device.type == "cuda")
             ):
-                outputs, predicted_counts = self.model(images)
+                outputs = self.model(images)
             
                 loss = self.criterion(
                     outputs,
-                    predicted_counts,
-                    targets,
-                    true_counts
+                    targets
                 )
             
             self.scaler.scale(loss).backward()
@@ -178,20 +174,17 @@ class Trainer:
     
                 images = batch["image"].to(self.device)
                 targets = batch["heatmap"].to(self.device)
-                true_counts = batch["egg_count"].to(self.device)
     
                 with torch.amp.autocast(
                     "cuda",
                     enabled=(self.device.type == "cuda")
                 ):
                 
-                    outputs, predicted_counts = self.model(images)
+                    outputs = self.model(images)
                 
                     loss = self.criterion(
                         outputs,
-                        predicted_counts,
-                        targets,
-                        true_counts
+                        targets
                     )
     
                 running_loss += loss.item()

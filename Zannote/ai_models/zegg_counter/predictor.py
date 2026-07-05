@@ -9,11 +9,11 @@ import torch
 import cv2
 
 # Mettre des . en fonction du niveau de la racine
-from .model import EggUNet
-from .Redim_image import resize_and_pad
-from .post_processing import detect_peaks
-from .post_processing import restore_points
-from .prediction_export import save_zannote_csv, summary_row, save_summary
+from model import EggUNet
+from Redim_image import resize_and_pad
+from post_processing import detect_peaks
+from post_processing import restore_points
+from prediction_export import save_zannote_csv, summary_row, save_summary
 
 from pathlib import Path
 
@@ -161,8 +161,7 @@ class Predictor:
             left,
             top,
             width,
-            height,
-            predicted_count_head
+            height
         ) = self.predict_heatmap(image_path)
     
         points = detect_peaks(
@@ -191,7 +190,7 @@ class Predictor:
     
         with torch.no_grad():
     
-            output, predicted_count = self.model(
+            output = self.model(
                 image
             )
     
@@ -205,6 +204,5 @@ class Predictor:
             left,
             top,
             width,
-            height,
-            float(predicted_count.cpu().item())
+            height
         )

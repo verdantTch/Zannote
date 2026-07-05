@@ -18,8 +18,8 @@ BORDER_MODE = cv2.BORDER_CONSTANT      # noir ou couleur fixe
 
 
 # Heatmap
-SIGMA = 16
-SIGMA_VAR = 5
+SIGMA = 15
+SIGMA_VAR = 3
 
 # Training
 BATCH_SIZE = 1 # Permet de regroupper les données pour la bach propagation
