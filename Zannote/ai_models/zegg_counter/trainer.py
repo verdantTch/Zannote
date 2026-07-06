@@ -14,7 +14,22 @@ from evaluate import evaluate_model
 from model import BCEDiceLoss
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
-from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_PATIENCE, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
+from config import (
+    BATCH_SIZE, 
+    NUM_WORKERS, 
+    LEARNING_RATE, 
+    N_EPOCHS, 
+    GRADIENT_CLIPPING, 
+    AUG2_PATIENCE, 
+    TRAIN_SPLIT, 
+    VAL_SPLIT, 
+    PEAK_THRESHOLD, 
+    PEAK_MIN_DISTANCE,
+    EARLY_STOPPING_PATIENCE,
+    WEIGHT_DECAY,
+    BCE_WEIGHT,
+    DICE_WEIGHT
+    )
 from version_manager import (
     VersionManager
 )
@@ -74,15 +89,15 @@ class Trainer:
         )
         self.criterion = (
             BCEDiceLoss(
-                bce_weight=0.5,
-                dice_weight=0.5
+                bce_weight=BCE_WEIGHT,
+                dice_weight=DICE_WEIGHT
             )
             )
         
         self.optimizer = torch.optim.AdamW(
             self.model.parameters(),
             lr=LEARNING_RATE,
-            weight_decay=1e-4  # à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
+            weight_decay= WEIGHT_DECAY  # à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
         )
         
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -95,7 +110,7 @@ class Trainer:
         )
         
         # Early stopping si pas d'amélioration
-        self.early_stopping_patience = 15
+        self.early_stopping_patience = EARLY_STOPPING_PATIENCE
         self.epochs_without_improvement = 0
         
         self.phase2_started = False
