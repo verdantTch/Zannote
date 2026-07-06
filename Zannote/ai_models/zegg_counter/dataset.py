@@ -55,18 +55,15 @@ class EggDataset(Dataset):
         )
 
         if split_file is not None:
-        
-            with open(
-                split_file,
-                "r",
-                encoding="utf-8"
-            ) as f:
-        
-                allowed_images = {
-                    line.strip()
-                    for line in f
-                    if line.strip()
-                }
+            with open(split_file, "r", encoding="utf-8") as f:
+          
+              allowed_images = {
+                  line.strip()
+                  for line in f
+                  if line.strip().lower().endswith(
+                      (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff")
+                  )
+              }
         
             self.images = [
                 p
