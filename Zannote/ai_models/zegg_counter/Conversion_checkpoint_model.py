@@ -31,5 +31,5 @@ model.eval()
 
 torch.save(
     model.state_dict(),
-    r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\models\V00T"
+    r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\models\V00T\best_model.pt"
 )
