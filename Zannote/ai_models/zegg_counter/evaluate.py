@@ -21,7 +21,7 @@ def evaluate_model(
     with torch.no_grad():
         for batch in dataloader:
             images = batch["image"].to(device)
-            outputs, predicted_counts_head = model(images)
+            outputs = model(images)
             probabilities = torch.sigmoid(
                 outputs
             )
@@ -51,7 +51,6 @@ def evaluate_model(
                     f" || Nombre réel={true_count}"
                 )
                 error = abs(predicted_count - true_count)
-
                 # IMPORTANT : cette ligne alimente le MAE (erreur absolue).
                 # Elle doit être appelée pour CHAQUE image, y compris
                 # celles à true_count == 0, sinon "mae" reste 0.0 par défaut.
