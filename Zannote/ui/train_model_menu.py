@@ -1,92 +1,82 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jul  2 09:59:16 2026
 
-@author: hugoz
-"""
 from PyQt6.QtWidgets import (
+    QMainWindow,
     QWidget,
     QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QMessageBox,
-    QFileDialog
+    QLabel
 )
 
+from PyQt6.QtCore import Qt
 
-from PyQt6.QtGui import QIcon, QPixmap, QPainter
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QAction
 
-from managers.image_manager import ImageManager
-
-
-from ui.annotation_window import AnnotationWindow
-
-from ui.home_card import HomeCard
 from utils.icons import svg_to_icon
 
-class TrainModelMenu(QWidget):
+
+class TrainModelMenu(QMainWindow):
 
     def __init__(self):
 
         super().__init__()
 
         self.setWindowTitle(
-            "Zannote"
+            "Entraîner un modèle"
         )
 
-        icon = svg_to_icon("assets/logo.svg")
-        self.setWindowIcon(icon)  # fenêtre + barre des tâches
-
-
-        self.build_ui()
-        
-        # Grand écran
-        self.setWindowState(
-            Qt.WindowState.WindowMaximized
+        self.setWindowIcon(
+            svg_to_icon("assets/logo_IA.svg")
         )
 
-    def build_ui(self):
+        central = QWidget()
 
-        main_layout = QVBoxLayout(self)
-
-        cards_layout = QHBoxLayout()
-
-        cards_layout.setSpacing(120)
-
-        annotation_card = HomeCard(
-            title="Zannote",
-            color = "#FF0000",
-            description="Annotation manuelle\net vérification",
-            icon_path="assets/logo.svg",
-            callback=self.open_annotation
+        self.setCentralWidget(
+            central
         )
 
-        ai_card = HomeCard(
-            title="Zannote IA",
-            color = "#11BED5",
-            description="Comptage IA\n",
-            icon_path="assets/logo_IA.svg",
-            callback=self.open_ai_menu
+        layout = QVBoxLayout(
+            central
         )
 
-        cards_layout.addStretch()
+        layout.addStretch()
 
-        cards_layout.addWidget(
-            annotation_card
+        title = QLabel(
+            "🚧 Cette page n'existe pas encore :)"
         )
 
-        cards_layout.addWidget(
-            ai_card
+        title.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
         )
 
-        cards_layout.addStretch()
+        title.setStyleSheet("""
+            font-size:42px;
+            font-weight:bold;
+            color:#11BED5;
+        """)
 
-        main_layout.addStretch()
+        subtitle = QLabel(
+            "L'entraînement des modèles sera disponible\n"
+            "dans une prochaine version."
+        )
 
-        main_layout.addLayout(cards_layout)
+        subtitle.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
 
-        main_layout.addStretch()
+        subtitle.setStyleSheet("""
+            font-size:22px;
+            color:#666666;
+        """)
+
+        layout.addWidget(title)
+
+        layout.addSpacing(25)
+
+        layout.addWidget(subtitle)
+
+        layout.addStretch()
+
+        self.create_toolbar()
 
         self.setStyleSheet("""
             QWidget{
@@ -94,35 +84,42 @@ class TrainModelMenu(QWidget):
             }
         """)
 
-
-    def open_annotation(self):
-    
-        folder = QFileDialog.getExistingDirectory(
-            self,
-            "Choisir dossier images"
+        self.setWindowState(
+            Qt.WindowState.WindowMaximized
         )
-    
-        if not folder:
-            return
-    
-        image_manager = ImageManager()
-    
-        if not image_manager.contains_images(folder):
-    
-            QMessageBox.warning(
-                self,
-                "Aucune image",
-                "Le dossier sélectionné ne contient aucune image."
-            )
-    
-            return
-    
-        self.annotation_window = AnnotationWindow()
-        self.annotation_window.load_folder(folder)
-        self.annotation_window.show()
+
+
+    def create_toolbar(self):
+
+        toolbar = self.addToolBar(
+            "Main"
+        )
+
+        home_action = QAction(
+            svg_to_icon("assets/home.svg"),
+            "",
+            self
+        )
+
+        home_action.setToolTip(
+            "Retour au menu principal"
+        )
+
+        home_action.triggered.connect(
+            self.return_menu
+        )
+
+        toolbar.addAction(
+            home_action
+        )
+
+
+    def return_menu(self):
+
+        from ui.home_page import HomePage
+
         self.close()
-        
-    def open_ai_menu(self):
-        self.ai_menu = AIMenu()
-        self.ai_menu.show()
-        self.close()
+
+        self.menu = HomePage()
+
+        self.menu.show()

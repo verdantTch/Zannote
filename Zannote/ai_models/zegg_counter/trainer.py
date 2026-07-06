@@ -14,7 +14,7 @@ from evaluate import evaluate_model
 from model import BCEDiceLoss
 from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm
-from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_ratio, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
+from config import BATCH_SIZE, NUM_WORKERS, LEARNING_RATE, N_EPOCHS, GRADIENT_CLIPPING, AUG2_PATIENCE, TRAIN_SPLIT, VAL_SPLIT, PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 from version_manager import (
     VersionManager
 )
@@ -79,10 +79,11 @@ class Trainer:
             )
             )
         
-        self.optimizer = torch.optim.Adam(
+        self.optimizer = torch.optim.AdamW(
             self.model.parameters(),
-            lr=LEARNING_RATE
-            )
+            lr=LEARNING_RATE,
+            weight_decay=1e-4  # à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
+        )
         
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer=self.optimizer,
@@ -96,6 +97,9 @@ class Trainer:
         # Early stopping si pas d'amélioration
         self.early_stopping_patience = 15
         self.epochs_without_improvement = 0
+        
+        self.phase2_started = False
+        self.epochs_without_improvement_aug2 = 0
         print(f"Device : {device}")
         if device.type == "cuda":
             print(torch.cuda.get_device_name(0))
@@ -205,7 +209,9 @@ class Trainer:
             'best_loss': self.best_loss,
             'best_relative_mae': self.best_relative_mae,
             'scaler_state_dict': self.scaler.state_dict() if self.device.type == "cuda" else None,
-            'epochs_without_improvement': self.epochs_without_improvement
+            'epochs_without_improvement': self.epochs_without_improvement,
+            'phase2_started': self.phase2_started,
+            'epochs_without_improvement_aug2': self.epochs_without_improvement_aug2
         }
         
         # Sauvegarde du checkpoint principal
@@ -244,6 +250,14 @@ class Trainer:
             checkpoint_path,
             map_location=self.device
         )
+        
+        self.epochs_without_improvement = checkpoint.get("epochs_without_improvement", 0)
+
+        # .get(...) avec valeur par défaut pour rester compatible avec les
+        # checkpoints créés avant ce changement
+        self.phase2_started = checkpoint.get("phase2_started", False)
+        self.epochs_without_improvement_aug2 = checkpoint.get("epochs_without_improvement_aug2", 0)
+        
         
         self.model.load_state_dict(
             checkpoint["model_state_dict"]
@@ -365,7 +379,7 @@ class Trainer:
         Learning rate : {LEARNING_RATE}
         Batch size : {BATCH_SIZE}
         Gradient clipping : {GRADIENT_CLIPPING}
-        Phase2 ratio : {AUG2_ratio}
+        Aug2 patience : {AUG2_PATIENCE}
         Threshold : {PEAK_THRESHOLD}
         Min distance : {PEAK_MIN_DISTANCE}
         """,
@@ -384,7 +398,7 @@ class Trainer:
                 "start_epoch": start_epoch,
                 "learning_rate": LEARNING_RATE,
                 "batch_size": BATCH_SIZE,
-                "aug2_ratio": AUG2_ratio,
+                "aug2_patience": AUG2_PATIENCE,
                 "gradient_clipping": GRADIENT_CLIPPING
             }
         )
@@ -395,45 +409,26 @@ class Trainer:
             VAL_SPLIT
         )
     
-        phase2_epoch = int(
-            AUG2_ratio * N_EPOCHS
-        )
     
         # --------------------------------------------------
         # Boucle d'entraînement
         # --------------------------------------------------
     
-        for epoch in range(
-            start_epoch,
-            N_EPOCHS
-        ):
-    
-            if epoch < phase2_epoch:
-    
-                self.train_loader.dataset.set_transform(
-                    get_phase1_transform
-                )
-    
+        for epoch in range(start_epoch, N_EPOCHS):
+        
+            if not self.phase2_started:
+                self.train_loader.dataset.set_transform(get_phase1_transform)
             else:
-    
-                self.train_loader.dataset.set_transform(
-                    get_phase2_transform
-                )
-    
-            if epoch == phase2_epoch:
-    
-                print(
-                    "\n===== Passage aux augmentations Phase 2 =====\n"
-                )
-    
+                self.train_loader.dataset.set_transform(get_phase2_transform)
+
             train_loss = self.train_epoch()
-    
             val_loss = self.validate()
 
             # IMPORTANT : on capture le LR AVANT le scheduler.step(),
             # car celui-ci peut modifier le LR immédiatement. On veut
             # enregistrer le LR qui a réellement servi à entraîner CET
             # epoch, pas celui qui servira au suivant.
+            
             current_lr = (
                 self.optimizer.param_groups[0]["lr"]
             )
@@ -512,17 +507,17 @@ class Trainer:
             print(message)
     
             self.logger.info(message)
-    
             is_best = relative_mae < self.best_relative_mae
-    
+        
             if is_best:
-    
+            
                 self.best_loss = val_loss
-                self.best_relative_mae = relative_mae    
+                self.best_relative_mae = relative_mae
                 best_epoch = epoch + 1
-    
+            
                 self.epochs_without_improvement = 0
-    
+                self.epochs_without_improvement_aug2 = 0   # <-- ajouté
+            
                 version_manager.save_metrics(
                     version_path,
                     {
@@ -538,22 +533,32 @@ class Trainer:
                         "epoch": best_epoch
                     }
                 )
-    
+   
                 torch.save(
                     self.model.state_dict(),
                     version_path / "best_model.pt"
-                )
-    
+                )      
+                
             else:
-    
+            
                 self.epochs_without_improvement += 1
-    
+                self.epochs_without_improvement_aug2 += 1   # <-- ajouté
+            
+                if (
+                    not self.phase2_started
+                    and self.epochs_without_improvement_aug2 >= AUG2_PATIENCE
+                ):
+                    self.phase2_started = True
+            
+                    print("\n===== Stagnation détectée : passage aux augmentations Phase 2 =====\n")
+                    self.logger.info("Passage aux augmentations Phase 2 (stagnation)")
+            
                 self.logger.info(
                     f"No improvement "
                     f"{self.epochs_without_improvement}/"
                     f"{self.early_stopping_patience}"
                 )
-    
+                
             # ------------------------------------------
             # Checkpoint à chaque époque
             # ------------------------------------------

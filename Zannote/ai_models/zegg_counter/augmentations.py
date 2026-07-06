@@ -59,7 +59,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
         
             A.ShiftScaleRotate(
                 shift_limit=0.1,
-                scale_limit=1,
+                scale_limit=1.1,
                 rotate_limit=50,
                 border_mode=BORDER_MODE,
                 fill=border_color,
@@ -73,7 +73,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
              ),
         
             A.ColorJitter(
-                brightness=0.55,
+                brightness=0.5,
                 contrast=0.4,
                 saturation=0.3,
                 hue=0.1,

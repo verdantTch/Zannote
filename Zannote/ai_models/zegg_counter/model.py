@@ -8,7 +8,7 @@ Created on Tue Jun 23 10:04:47 2026
 
 import torch
 import torch.nn as nn
-
+from config import BCE_WEIGHT, DICE_WEIGHT
 
 class DiceLoss(nn.Module):
     """
@@ -56,8 +56,8 @@ class BCEDiceLoss(nn.Module):
 
     def __init__(
         self,
-        bce_weight=0.4,
-        dice_weight=0.6
+        bce_weight=BCE_WEIGHT,
+        dice_weight=DICE_WEIGHT
     ):
 
         super().__init__()
@@ -187,7 +187,7 @@ class EggUNet(
         self.enc4 = DoubleConv(
             128,
             256,
-            dropout=0.12
+            dropout=0.09
         )
 
         self.pool4 = nn.MaxPool2d(
@@ -199,7 +199,7 @@ class EggUNet(
         self.bottleneck = DoubleConv(
             256,
             512,
-            dropout=0.17
+            dropout=0.15
         )
         
         #  Décodeur
@@ -213,7 +213,7 @@ class EggUNet(
         self.dec4 = DoubleConv(
             512,
             256,
-            dropout=0.12
+            dropout=0.09
         )
 
         self.up3 = nn.ConvTranspose2d(

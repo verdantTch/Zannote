@@ -243,7 +243,7 @@ def update_summary(
 
         })
 
-    save_summary(
+    return save_summary(
         rows,
-        folder
+        folder.parent
     )

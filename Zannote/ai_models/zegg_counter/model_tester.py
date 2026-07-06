@@ -24,7 +24,7 @@ from config import (
 
 # A modifier : le chemin du modèle à évaluer
 MODEL_PATH = (
-    "models/V003/best_model.pt"
+    "models/V004/best_model.pt"
 )
 
 
