@@ -516,7 +516,7 @@ class UseModelMenu(QMainWindow):
     
         image_folder = Path(self.image_folder.text())
         
-        output_folder = image_folder / "Labels"
+        output_folder = image_folder / "labels"
         
         nb = predictor.predict_folder(
         

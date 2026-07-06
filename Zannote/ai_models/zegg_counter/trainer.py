@@ -253,6 +253,10 @@ class Trainer:
             checkpoint["optimizer_state_dict"]
         )
         
+        self.scaler.load_state_dict(
+            checkpoint["scaler_state_dict"]
+        )
+        
         self.scheduler.load_state_dict(
             checkpoint["scheduler_state_dict"]
         )
@@ -355,7 +359,18 @@ class Trainer:
         writer = SummaryWriter(
             log_dir=version_path / "tensorboard"
         )
-    
+        writer.add_text(
+            "Hyperparameters",
+            f"""
+        Learning rate : {LEARNING_RATE}
+        Batch size : {BATCH_SIZE}
+        Gradient clipping : {GRADIENT_CLIPPING}
+        Phase2 ratio : {AUG2_ratio}
+        Threshold : {PEAK_THRESHOLD}
+        Min distance : {PEAK_MIN_DISTANCE}
+        """,
+        )
+            
         # --------------------------------------------------
         # Sauvegarde métadonnées initiales
         # --------------------------------------------------

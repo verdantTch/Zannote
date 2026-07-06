@@ -7,13 +7,15 @@ Created on Fri Jun 12 16:16:54 2026
 
 import os
 import pandas as pd
-
+import numpy as np
+from pathlib import Path
 
 class CsvManager:
 
-    def __init__(self, label_folder):
+    def __init__(self, label_folder, image_folder):
 
         self.label_folder = label_folder
+        self.image_folder = image_folder
 
         os.makedirs(
             label_folder,
@@ -105,3 +107,65 @@ class CsvManager:
             ),
             index=False
         )
+        self.update_summary()
+        
+    def update_summary(self):
+    
+        rows = []
+    
+        for csv_file in sorted(Path(self.label_folder).glob("*.csv")):
+    
+            df = pd.read_csv(csv_file)
+            
+            if df.empty:
+                rows.append({
+                    "image": csv_file.stem,
+                    "egg_count": 0,
+                    "mean_probability": np.nan,
+                    "std_probability": np.nan
+                })
+                continue
+            
+            rows.append({
+    
+                "image": csv_file.stem,    
+                
+                "egg_count": len(df),
+    
+                "mean_probability": df["confidence"].mean(),
+    
+                "std_probability": df["confidence"].std(ddof=0)
+    
+            })
+    
+        summary = pd.DataFrame(rows)
+    
+        output = Path(self.image_folder) / "Summary.xlsx"
+    
+        with pd.ExcelWriter(
+            output,
+            engine="openpyxl"
+        ) as writer:
+    
+            summary.to_excel(
+                writer,
+                index=False
+            )
+    
+            worksheet = writer.sheets["Sheet1"]
+    
+            for column in worksheet.columns:
+    
+                length = max(
+    
+                    len(str(cell.value))
+                    if cell.value is not None
+                    else 0
+    
+                    for cell in column
+    
+                )
+    
+                worksheet.column_dimensions[
+                    column[0].column_letter
+                ].width = length + 4

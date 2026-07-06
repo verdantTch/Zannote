@@ -9,11 +9,12 @@ import torch
 import cv2
 
 # Mettre des . en fonction du niveau de la racine
-from model import EggUNet
-from Redim_image import resize_and_pad
-from post_processing import detect_peaks
-from post_processing import restore_points
-from prediction_export import save_zannote_csv, summary_row, save_summary
+from .model import EggUNet
+from .Redim_image import resize_and_pad
+from .post_processing import detect_peaks
+from .post_processing import restore_points
+from .summary_manager import save_zannote_csv, update_summary
+from .config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 
 from pathlib import Path
 
@@ -88,8 +89,8 @@ class Predictor:
         self,
         image_folder,
         output_folder,
-        threshold=0.5,
-        min_distance=8,
+        threshold=PEAK_THRESHOLD,
+        min_distance=PEAK_MIN_DISTANCE,
         progress_callback=None
     ):
     
@@ -102,7 +103,6 @@ class Predictor:
         )
     
         images = []
-        summary = []
     
         for ext in (
             "*.jpg",
@@ -129,21 +129,14 @@ class Predictor:
                 output_folder
             )
             
-            summary.append(
-                summary_row(
-                    image.stem,
-                    points
-                )
-            )
         
             if progress_callback is not None:
                 progress_callback(i + 1, len(images))
-        
-        save_summary(
-            summary,
-            image_folder
+            
+        update_summary(
+            output_folder
         )
-    
+                    
         return len(images)
 
 

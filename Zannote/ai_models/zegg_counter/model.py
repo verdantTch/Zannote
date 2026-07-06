@@ -56,8 +56,8 @@ class BCEDiceLoss(nn.Module):
 
     def __init__(
         self,
-        bce_weight=0.5,
-        dice_weight=0.5
+        bce_weight=0.4,
+        dice_weight=0.6
     ):
 
         super().__init__()
@@ -187,7 +187,7 @@ class EggUNet(
         self.enc4 = DoubleConv(
             128,
             256,
-            dropout=0.1
+            dropout=0.12
         )
 
         self.pool4 = nn.MaxPool2d(
@@ -199,7 +199,7 @@ class EggUNet(
         self.bottleneck = DoubleConv(
             256,
             512,
-            dropout=0.15
+            dropout=0.17
         )
         
         #  Décodeur
@@ -213,7 +213,7 @@ class EggUNet(
         self.dec4 = DoubleConv(
             512,
             256,
-            dropout=0.1
+            dropout=0.12
         )
 
         self.up3 = nn.ConvTranspose2d(

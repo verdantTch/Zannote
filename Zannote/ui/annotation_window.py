@@ -428,13 +428,13 @@ class AnnotationWindow(QMainWindow):
             self.banner_widget.hide()
         
             return False
-    
+        image_folder = folder
         label_folder = os.path.join(
             folder,
             "labels"
         )
     
-        self.csv_manager = CsvManager(label_folder)
+        self.csv_manager = CsvManager(label_folder, image_folder)
     
         self.image_manager.current_index = 0
     
