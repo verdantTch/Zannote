@@ -41,7 +41,7 @@ TEST_SIZE = 50
 AUG2_ratio = .7 # Au bout de (AUG2_ratio*100) % du noombre total d'époques on passe au deuxième paramètres d'augmentation 
 
 # Processing de la carte de probabilité prédite par le modèle
-PEAK_THRESHOLD = 0.8 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
+PEAK_THRESHOLD = 0.55 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
 PEAK_MIN_DISTANCE = 13 # Distance minimale en pixel séparant des oeuf
 
 # =====================================================

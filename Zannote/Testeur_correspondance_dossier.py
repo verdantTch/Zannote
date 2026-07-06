@@ -184,8 +184,8 @@ def comparer_dossiers_detail(dossier_csv, DOSSIER_IMAGES):
 
 if __name__ == "__main__":
     # Définir les chemins des dossiers (à modifier selon votre configuration)
-    DOSSIER_CSV = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\dataset\labels"  # Dossier contenant les fichiers .csv
-    DOSSIER_IMAGES = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\dataset\images"  # Dossier contenant les fichiers images
+    DOSSIER_CSV = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\dataset\test\labels"  # Dossier contenant les fichiers .csv
+    DOSSIER_IMAGES = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\dataset\test\images"  # Dossier contenant les fichiers images
     
     # Exécuter la comparaison
     seulement_csv, seulement_image, dans_les_deux = comparer_dossiers(DOSSIER_CSV, DOSSIER_IMAGES)
