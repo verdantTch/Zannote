@@ -4,7 +4,7 @@ Created on Tue Jun 23 10:04:47 2026
 
 @author: hugoz
 """
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-'
 
 import torch
 import torch.nn as nn
