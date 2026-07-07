@@ -28,8 +28,8 @@ N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-
 LEARNING_RATE = 8e-5 # Pas d'apprentissage 
 NUM_WORKERS = 0
 WEIGHT_DECAY = 1e-4  # Pour optimizer à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
-BCE_WEIGHT = 0.4
-DICE_WEIGHT = 0.6
+BCE_WEIGHT = 0.6
+DICE_WEIGHT = 0.4
 
 # Validation
 VAL_RATIO = 0.15
