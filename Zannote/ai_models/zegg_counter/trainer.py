@@ -222,7 +222,7 @@ class Trainer:
             'optimizer_state_dict': self.optimizer.state_dict(),
             'scheduler_state_dict': self.scheduler.state_dict(),
             'best_loss': self.best_loss,
-            'best_relative_mae': self.best_relative_mae,
+            'best_relative_mae': self.best_median_relative_error,
             'scaler_state_dict': self.scaler.state_dict() if self.device.type == "cuda" else None,
             'epochs_without_improvement': self.epochs_without_improvement,
             'phase2_started': self.phase2_started,
@@ -639,7 +639,7 @@ class Trainer:
                 "best_val_loss": self.best_loss,
                 "threshold": PEAK_THRESHOLD,
                 "min_distance": PEAK_MIN_DISTANCE,
-                "best_relative_mae": self.best_relative_mae,
+                "best_relative_mae": self.best_median_relative_error,
                 "learning_rate": LEARNING_RATE,
                 "batch_size": BATCH_SIZE
             }
