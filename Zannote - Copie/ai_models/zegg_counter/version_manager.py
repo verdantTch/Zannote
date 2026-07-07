@@ -32,6 +32,7 @@ class VersionManager:
         )
 
         self.model_dir.mkdir(
+            parents=True,
             exist_ok=True
         )
 

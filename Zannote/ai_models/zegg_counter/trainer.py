@@ -64,7 +64,7 @@ class Trainer:
         
         self.model = model.to(device)
         self.best_loss = float("inf")
-        self.best_relative_mae = float("inf")
+        self.best_median_relative_error= float("inf")
         self.train_loader = DataLoader(
         
             train_dataset,
@@ -292,8 +292,8 @@ class Trainer:
         
         self.best_loss = checkpoint["best_loss"]
         
-        self.best_relative_mae = checkpoint.get(
-            "best_relative_mae",
+        self.best_median_relative_error = checkpoint.get(
+            "best_median_relative_error",
             float("inf")
         )
         if checkpoint["scaler_state_dict"] is not None and self.device.type == "cuda":
@@ -459,10 +459,13 @@ class Trainer:
                 self.device
             )
             
+            median_error = metrics["median_error"]
+            median_relative_error = metrics["median_relative_error"]
             mae = metrics["mae"]
             mae_std = metrics["mae_std"]
             relative_mae = metrics["relative_mae"]
             relative_mae_std = metrics["relative_mae_std"]
+
                         
             history.append(
             {
@@ -474,6 +477,8 @@ class Trainer:
                 "min_distance": PEAK_MIN_DISTANCE,
                 "mae": mae,
                 "mae_std": mae_std,
+                "median_error": median_error,
+                "median_relative_error": median_relative_error,
                 "relative_mae": relative_mae,
                 "relative_mae_std": relative_mae_std
             
@@ -501,6 +506,7 @@ class Trainer:
             writer.add_scalar("Validation/min_distance", PEAK_MIN_DISTANCE, epoch+1)
             writer.add_scalar("Validation/MAE", mae, epoch+1)
             writer.add_scalar("Validation/MAE_std", mae_std, epoch+1)
+            writer.add_scalar("Validation/Median_error", median_error, epoch + 1)
             writer.add_scalar("Validation/Relative_MAE", relative_mae, epoch+1)
             writer.add_scalar("Validation/Relative_MAE_std", relative_mae_std, epoch+1)
     
@@ -515,6 +521,7 @@ class Trainer:
                 f" | min_distance={PEAK_MIN_DISTANCE}"
                 f" | mae={mae}"
                 f" | mae_std={mae_std}"
+                f" | median_error={median_error}"
                 f" | Relative_MAE={100*relative_mae:.2f}%"
                 f" | Relative_MAE_std={100*relative_mae_std:.2f}%"
             )
@@ -522,12 +529,12 @@ class Trainer:
             print(message)
     
             self.logger.info(message)
-            is_best = relative_mae < self.best_relative_mae
-        
+            is_best = median_relative_error < self.best_median_relative_error
+            
             if is_best:
             
                 self.best_loss = val_loss
-                self.best_relative_mae = relative_mae
+                self.best_median_relative_error = median_relative_error
                 best_epoch = epoch + 1
             
                 self.epochs_without_improvement = 0
@@ -539,7 +546,9 @@ class Trainer:
                         "best_val_loss": float(val_loss),
                         "best_relative_mae": float(relative_mae),
                         "threshold": float(PEAK_THRESHOLD),
-                        "min_distance": float(PEAK_MIN_DISTANCE),
+                        "min_distance": float(PEAK_MIN_DISTANCE),                        
+                        "median_error": float(median_error),
+                        "median_relative_error": float(median_relative_error),
                         "mae": float(mae),
                         "mae_std": float(mae_std),
                         "relative_mae": float(relative_mae),

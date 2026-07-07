@@ -221,46 +221,34 @@ class ModelManager:
         return models[-1]
     
     def list_models_display(self):
-
+    
         items = []
     
         for version in self.list_models():
     
             metrics = self.get_metrics(version)
-    
-            rel = metrics.get(
-                "relative_mae",
-                None
-            )
-    
-            rel_std = metrics.get(
-                "relative_mae_std",
-                None
-            )
-    
-            if rel is None:
-    
+            
+            median_error = metrics.get("median_relative_error", None)
+            mean_error = metrics.get("relative_mae", None)
+            std_error = metrics.get("relative_mae_std", None)
+            
+            # Construction progressive du texte
+            parts = [version]
+            
+            if median_error is not None:
+                parts.append(f"Erreur med.: {100 * median_error:.2f}%")
+                
+            if mean_error is not None:
+                if std_error is not None:
+                    parts.append(f"Erreur moy. : {100 * mean_error:.2f}% ± {100 * std_error:.2f}%")
+                else:
+                    parts.append(f"Erreur : {100 * mean_error:.2f}%")
+            
+            if len(parts) == 1:
                 text = version
-    
-            elif rel_std is None:
-    
-                text = (
-                    f"{version} "
-                    f"(Erreur {100 * rel:.2f} %)"
-                )
-    
             else:
+                text = f"{parts[0]} ({' | '.join(parts[1:])})"
     
-                text = (
-                    f"{version} "
-                    f"(Erreur {100 * rel:.2f} ± {100 * rel_std:.2f} %)"
-                )
-    
-            items.append(
-                (
-                    version,
-                    text
-                )
-            )
+            items.append((version, text))
     
         return items

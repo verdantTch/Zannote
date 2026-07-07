@@ -8,7 +8,7 @@ Created on Tue Jun 30 17:11:44 2026
 import cv2
 
 # Mettre un . en fonction du niveau de la racine
-from config import BORDER_MODE, TARGET_H, TARGET_W
+from .config import BORDER_MODE, TARGET_H, TARGET_W
 
 def resize_and_pad(image):
 

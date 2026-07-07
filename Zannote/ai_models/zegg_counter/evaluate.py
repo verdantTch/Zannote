@@ -65,8 +65,12 @@ def evaluate_model(
     metrics = {
         "threshold": threshold,
         "min_distance": min_distance,
+        "median_error": float(np.median(abs_errors)) if abs_errors else 0.0,
+        "median_relative_error": float(np.median(relative_errors)) if relative_errors else 0.0,
+        
         "mae": float(np.mean(abs_errors)) if abs_errors else 0.0,
         "mae_std": float(np.std(abs_errors)) if abs_errors else 0.0,
+    
         "relative_mae": float(np.mean(relative_errors)) if relative_errors else 0.0,
         "relative_mae_std": float(np.std(relative_errors)) if relative_errors else 0.0,
     }

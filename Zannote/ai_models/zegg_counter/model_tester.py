@@ -114,6 +114,8 @@ def main():
     
     print(f"Threshold               : {metrics['threshold']:.2f}")
     print(f"Min distance            : {metrics['min_distance']}")
+    print(f"Median error            : {metrics['median_error']:.2f} eggs")
+    print(f"Median relative error   : {metrics['median_relative_error']*100:.2f}%")
     print(f"MAE                     : {metrics['mae']:.2f} eggs")
     print(f"MAE std                 : {metrics['mae_std']:.2f}")
     print(f"Relative MAE            : {metrics['relative_mae']*100:.2f}%")

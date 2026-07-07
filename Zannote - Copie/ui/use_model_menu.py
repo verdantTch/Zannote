@@ -113,7 +113,9 @@ class UseModelMenu(QMainWindow):
         center_layout.addStretch()
         
         content = QWidget()
-        content.setMaximumWidth(1200)
+        content.setMinimumWidth(1000)
+
+        content.setMaximumWidth(2000)
         
         layout = QVBoxLayout(content)
         layout.setContentsMargins(40, 20, 40, 20)
@@ -234,12 +236,12 @@ class UseModelMenu(QMainWindow):
         """)
         
         infos_main_layout = QVBoxLayout(infos_group)
-        
         self.date_label = QLabel("-")
+        self.median_error_label = QLabel("-")
+        self.median_relative_error_label = QLabel("-")
         self.mae_label = QLabel("-")
         self.mae_std_label = QLabel("-")
-        self.rel_mae_label = QLabel("-")
-        self.rel_mae_std_label = QLabel("-")
+        
         
         parent.setStyleSheet("""
                              
@@ -389,7 +391,7 @@ class UseModelMenu(QMainWindow):
         
         add_row(
             infos_main_layout,
-            "Date",
+            "Date du modèle",
             self.date_label
         )
         
@@ -407,35 +409,34 @@ class UseModelMenu(QMainWindow):
         
         infos_main_layout.addWidget(section_title)
         
+        add_row(
+            infos_main_layout,
+            "Erreur médiane",
+            self.median_error_label,
+            "Médiane de l'erreur absolue en nombre d'œufs."
+        )
         
         add_row(
             infos_main_layout,
-            "MAE",
+            "Erreur médiane",
+            self.median_relative_error_label
+        )
+                
+        add_row(
+            infos_main_layout,
+            "Erreur moyenne",
             self.mae_label,
             "Écart moyen entre le nombre d'œufs prédit et le nombre réel."
         )
         
+        
         add_row(
             infos_main_layout,
-            "σ MAE",
+            "σ Erreur moyenne",
             self.mae_std_label,
-            "Écart-type de la MAE."
+            "Écart-type de l'erreur moyenne absolue."
         )
-        
-        add_row(
-            infos_main_layout,
-            "MAE relative",
-            self.rel_mae_label,
-            "Erreur moyenne exprimée en pourcentage."
-        )
-        
-        add_row(
-            infos_main_layout,
-            "σ relative",
-            self.rel_mae_std_label,
-            "Écart-type de l'erreur relative."
-        )
-        
+                
         layout.addWidget(
             infos_group
         )
@@ -644,7 +645,22 @@ class UseModelMenu(QMainWindow):
             )[:10]
         )
     
-    
+        median_error = info.get("median_error", None)
+        
+        self.median_error_label.setText(
+            "-"
+            if median_error is None
+            else f"{median_error:.2f}"
+        )
+        
+        median_relative_error = info.get("median_relative_error", None)
+        
+        self.median_relative_error_label.setText(
+            "-"
+            if median_relative_error is None
+            else f"{100 * median_relative_error:.2f} %"
+        )
+            
         self.mae_label.setText(
             str(
                 info.get(
@@ -654,20 +670,6 @@ class UseModelMenu(QMainWindow):
             )
         )
     
-        rel = info.get(
-            "relative_mae",
-            None
-        )
-    
-        if rel is None:
-    
-            self.rel_mae_label.setText("-")
-    
-        else:
-    
-            self.rel_mae_label.setText(
-                f"{100*rel:.2f} %"
-            )
         
         mae_std = info.get(
             "mae_std",
@@ -684,21 +686,7 @@ class UseModelMenu(QMainWindow):
                 f"{mae_std:.2f}"
             )
         
-        
-        rel_std = info.get(
-            "relative_mae_std",
-            None
-        )
-        
-        if rel_std is None:
-        
-            self.rel_mae_std_label.setText("-")
-        
-        else:
-        
-            self.rel_mae_std_label.setText(
-                f"{100 * rel_std:.2f} %"
-            )
+       
     
     
     def choose_model_directory(self):
