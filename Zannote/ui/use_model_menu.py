@@ -418,8 +418,9 @@ class UseModelMenu(QMainWindow):
         
         add_row(
             infos_main_layout,
-            "Erreur médiane",
-            self.median_relative_error_label
+            "Erreur médiane relative",
+            self.median_relative_error_label,
+            "Médiane de l'erreur relative (=rapporté au nombre réel) en %."
         )
                 
         add_row(

@@ -27,13 +27,13 @@ EARLY_STOPPING_PATIENCE = 15
 N_EPOCHS = 100 # Nombre de pas d'amélioration du loss (ou de passage dans le U-net pour l'améliorer)
 LEARNING_RATE = 8e-5 # Pas d'apprentissage 
 NUM_WORKERS = 0
-WEIGHT_DECAY = 1e-4  # Pour optimizer à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
-BCE_WEIGHT = 0.6
-DICE_WEIGHT = 0.4
+WEIGHT_DECAY = 5e-4  # Pour optimizer à ajuster, 1e-5 à 1e-3 selon l'overfitting observé
+BCE_WEIGHT = 0.5
+DICE_WEIGHT = 0.5
 
 # Validation
 VAL_RATIO = 0.15
-RANDOM_SEED = 4  # 42 Controle de la répartition aléatoire pour les dataset
+RANDOM_SEED = 10  # 42 Controle de la répartition aléatoire pour les dataset
 
 
 # Test
@@ -43,7 +43,7 @@ TEST_SIZE = 50
 AUG2_PATIENCE = 6 # Nombre d'époques sans amélioration de la relative_mae avant de passer aux augmentations phase 2
 
 # Processing de la carte de probabilité prédite par le modèle
-PEAK_THRESHOLD = 0.65 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
+PEAK_THRESHOLD = 0.55 # Seuil de probabilité au dela duquel on considère qu'il y a un oeuf
 PEAK_MIN_DISTANCE = 12 # Distance minimale en pixel séparant des oeuf
 
 # =====================================================

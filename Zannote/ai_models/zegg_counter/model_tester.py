@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from torch.utils.data import DataLoader
 
-from model  import EggUNet # à modifier si anciennes versions
+from model import EggUNet # à modifier si anciennes versions
 from dataset import EggDataset
 
 from evaluate import evaluate_model
