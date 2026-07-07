@@ -9,7 +9,7 @@ import torch
 
 from model import EggUNet
 
-checkpoint_path = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\models\V00T\checkpoint_epoch_28.pt"
+checkpoint_path = r"D:\Documents\Codage\Python\Wolbachia_Sicard\GH_code_Zannote\Zannote\ai_models\zegg_counter\models\V00T\checkpoint_epoch_13.pt"
 
 device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"

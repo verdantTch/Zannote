@@ -233,15 +233,27 @@ class ModelManager:
                 None
             )
     
+            rel_std = metrics.get(
+                "relative_mae_std",
+                None
+            )
+    
             if rel is None:
     
                 text = version
+    
+            elif rel_std is None:
+    
+                text = (
+                    f"{version} "
+                    f"(Erreur {100 * rel:.2f} %)"
+                )
     
             else:
     
                 text = (
                     f"{version} "
-                    f"(Erreur {100*rel:.1f} %)"
+                    f"(Erreur {100 * rel:.2f} ± {100 * rel_std:.2f} %)"
                 )
     
             items.append(

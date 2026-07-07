@@ -9,12 +9,12 @@ import torch
 import cv2
 
 # Mettre des . en fonction du niveau de la racine
-from model import EggUNet
-from Redim_image import resize_and_pad
-from post_processing import detect_peaks
-from post_processing import restore_points
-from summary_manager import save_zannote_csv, update_summary
-from config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
+from ai_models.zegg_counter.model import EggUNet
+from ai_models.zegg_counter.Redim_image import resize_and_pad
+from ai_models.zegg_counter.post_processing import detect_peaks
+from ai_models.zegg_counter.post_processing import restore_points
+from ai_models.zegg_counter.summary_manager import save_zannote_csv, update_summary
+from ai_models.zegg_counter.config import PEAK_THRESHOLD, PEAK_MIN_DISTANCE
 
 from pathlib import Path
 

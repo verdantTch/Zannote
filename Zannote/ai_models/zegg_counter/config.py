@@ -102,7 +102,7 @@ else:
 
 # Modèles
 MODEL_PATH = (
-    os.path.join(MODELS_RACINE,"models")
+    os.path.join(MODELS_RACINE,"ai_models","zegg_counter","models")
 )
 
 METADATA_PATH = (

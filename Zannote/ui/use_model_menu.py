@@ -183,80 +183,132 @@ class UseModelMenu(QMainWindow):
     
         layout.addSpacing(20)
     
-        #
-        # Informations
-        #
-    
-        infos = QGridLayout()
-    
+        # -------------------------
+        # Informations modèle
+        # -------------------------
+        
+        infos_group = QGroupBox("Informations du modèle")
+        
+        infos_group.setStyleSheet("""
+            QGroupBox{
+                font-size:18px;
+                font-weight:bold;
+                border:2px solid #D9D9D9;
+                border-radius:12px;
+                margin-top:12px;
+                padding:15px;
+                background:white;
+            }
+        
+            QGroupBox::title{
+                subcontrol-origin: margin;
+                left:15px;
+                padding:0 6px;
+                color:#11BED5;
+            }
+        """)
+        
+        infos = QGridLayout(infos_group)
+        
+        infos.setHorizontalSpacing(20)
+        infos.setVerticalSpacing(12)
+        
         self.date_label = QLabel("-")
-        self.epoch_label = QLabel("-")
-        self.loss_label = QLabel("-")
         self.mae_label = QLabel("-")
+        self.mae_std_label = QLabel("-")
         self.rel_mae_label = QLabel("-")
-    
-        infos.addWidget(
-            QLabel("Date"),
+        self.rel_mae_std_label = QLabel("-")
+        
+        def add_info_row(row, label_text, value_label, tooltip=None):
+        
+            label = QLabel(label_text)
+        
+            label.setAlignment(
+                Qt.AlignmentFlag.AlignRight
+                |
+                Qt.AlignmentFlag.AlignVCenter
+            )
+        
+            label.setFixedWidth(220)
+        
+            label.setStyleSheet("""
+                font-size:16px;
+                color:#555555;
+            """)
+        
+            if tooltip:
+                label.setToolTip(tooltip)
+        
+            value_label.setAlignment(
+                Qt.AlignmentFlag.AlignCenter
+            )
+        
+            value_label.setFixedWidth(140)
+        
+            value_label.setStyleSheet("""
+                QLabel{
+                    font-size:16px;
+                    font-weight:bold;
+                    color:#222222;
+                    background:#F0FBFD;
+                    border:1px solid #11BED5;
+                    border-radius:6px;
+                    padding:4px;
+                }
+            """)
+        
+            infos.addWidget(
+                label,
+                row,
+                0
+            )
+        
+            infos.addWidget(
+                value_label,
+                row,
+                1
+            )
+        
+        
+        add_info_row(
             0,
-            0
+            "Date",
+            self.date_label
         )
-    
-        infos.addWidget(
-            self.date_label,
-            0,
-            1
-        )
-    
-        infos.addWidget(
-            QLabel("Epoch optimal"),
+        
+        
+        add_info_row(
             1,
-            0
-        )
-    
-        infos.addWidget(
-            self.epoch_label,
-            1,
-            1
-        )
-    
-        infos.addWidget(
-            QLabel("Validation loss"),
-            2,
-            0
-        )
-    
-        infos.addWidget(
-            self.loss_label,
-            2,
-            1
-        )
-    
-        infos.addWidget(
-            QLabel("MAE"),
-            3,
-            0
-        )
-    
-        infos.addWidget(
+            "MAE",
             self.mae_label,
+            "Écart moyen entre le nombre d'œufs prédit et le nombre réel."
+        )
+        
+        add_info_row(
+            2,
+            "Écart-type MAE",
+            self.mae_std_label
+        )
+        
+        add_info_row(
             3,
-            1
-        )
-    
-        infos.addWidget(
-            QLabel("Erreur relative"),
-            4,
-            0
-        )
-    
-        infos.addWidget(
+            "MAE relative",
             self.rel_mae_label,
-            4,
-            1
+            "Erreur moyenne exprimée en pourcentage."
         )
-    
-        layout.addLayout(
-            infos
+        
+        add_info_row(
+            4,
+            "Écart-type relatif",
+            self.rel_mae_std_label
+        )
+        
+        infos.setColumnStretch(0, 0)
+        infos.setColumnStretch(1, 0)
+        infos.setColumnStretch(2, 1)
+        
+        layout.addWidget(
+            infos_group
         )
     
         layout.addSpacing(30)
@@ -324,22 +376,16 @@ class UseModelMenu(QMainWindow):
                 
         layout.addSpacing(40)
     
-        self.run_button = QPushButton(
-            "Lancer l'analyse"
-        )
+        self.run_button = QPushButton("Lancer l'analyse")
+        self.run_button.clicked.connect(self.run_prediction)
+        self.run_button.setMinimumHeight(50)
+        self.run_button.setMinimumWidth(300)
+        self.run_button.setMaximumWidth(400)
         
-        self.run_button.clicked.connect(
-            self.run_prediction
-        )
-    
-        self.run_button.setMinimumHeight(
-            50
-        )
-    
-        layout.addWidget(
-            self.run_button
-        )
-    
+        # Centrer le bouton
+        layout.addWidget(self.run_button)
+        layout.setAlignment(self.run_button, Qt.AlignmentFlag.AlignHCenter)
+        
         layout.addSpacing(20)
     
         self.progress = QProgressBar()
@@ -423,23 +469,6 @@ class UseModelMenu(QMainWindow):
             )[:10]
         )
     
-        self.epoch_label.setText(
-            str(
-                info.get(
-                    "epoch",
-                    "-"
-                )
-            )
-        )
-    
-        self.loss_label.setText(
-            str(
-                info.get(
-                    "best_val_loss",
-                    "-"
-                )
-            )
-        )
     
         self.mae_label.setText(
             str(
@@ -463,6 +492,37 @@ class UseModelMenu(QMainWindow):
     
             self.rel_mae_label.setText(
                 f"{100*rel:.2f} %"
+            )
+        
+        mae_std = info.get(
+            "mae_std",
+            None
+        )
+        
+        if mae_std is None:
+        
+            self.mae_std_label.setText("-")
+        
+        else:
+        
+            self.mae_std_label.setText(
+                f"{mae_std:.2f}"
+            )
+        
+        
+        rel_std = info.get(
+            "relative_mae_std",
+            None
+        )
+        
+        if rel_std is None:
+        
+            self.rel_mae_std_label.setText("-")
+        
+        else:
+        
+            self.rel_mae_std_label.setText(
+                f"{100 * rel_std:.2f} %"
             )
     
     
