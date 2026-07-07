@@ -20,8 +20,8 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
         
             A.ShiftScaleRotate(
                 shift_limit=0.05,
-                scale_limit=(-0.3, 0.7),
-                rotate_limit=40,
+                scale_limit=(-0.10, 0.4),
+                rotate_limit=30,
                 border_mode=BORDER_MODE,
                 fill=border_color,
                 p=0.6
@@ -34,8 +34,8 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
              ),
         
             A.ColorJitter(
-                brightness=0.5,
-                contrast=0.25,
+                brightness=0.3,
+                contrast=0.1,
                 saturation=0.1,
                 hue=0.05,
                 p=0.5
@@ -59,7 +59,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
         
             A.ShiftScaleRotate(
                 shift_limit=0.1,
-                scale_limit=(-0.3, 1.2),
+                scale_limit=(-0.10, 0.6),
                 rotate_limit=50,
                 border_mode=BORDER_MODE,
                 fill=border_color,
@@ -73,11 +73,11 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
              ),
         
             A.ColorJitter(
-                brightness=0.5,
-                contrast=0.4,
-                saturation=0.3,
-                hue=0.1,
-                p=0.7
+                brightness=0.4,
+                contrast=0.2,
+                saturation=0.1,
+                hue=0.05,
+                p=0.5
             )
         ],
 
