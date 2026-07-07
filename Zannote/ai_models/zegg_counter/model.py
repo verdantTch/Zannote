@@ -8,7 +8,7 @@ Created on Tue Jun 23 10:04:47 2026
 
 import torch
 import torch.nn as nn
-from config import BCE_WEIGHT, DICE_WEIGHT
+from .config import BCE_WEIGHT, DICE_WEIGHT
 
 class DiceLoss(nn.Module):
     """

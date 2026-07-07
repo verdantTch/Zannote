@@ -20,7 +20,7 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
         
             A.ShiftScaleRotate(
                 shift_limit=0.05,
-                scale_limit=0.7,
+                scale_limit=(-0.3, 0.7),
                 rotate_limit=40,
                 border_mode=BORDER_MODE,
                 fill=border_color,
@@ -30,7 +30,7 @@ def get_phase1_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
             A.Defocus(
                 radius=(2,3),          # Large defocus radius
                 alias_blur=(0.4, 0.6),   # Strong aliasing
-                p=0.2
+                p=0.1
              ),
         
             A.ColorJitter(
@@ -59,7 +59,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
         
             A.ShiftScaleRotate(
                 shift_limit=0.1,
-                scale_limit=1.1,
+                scale_limit=(-0.3, 1.2),
                 rotate_limit=50,
                 border_mode=BORDER_MODE,
                 fill=border_color,
@@ -69,7 +69,7 @@ def get_phase2_transform(border_color=(0, 0, 0)): # Per défaut on remplit en no
             A.Defocus(
                 radius=(2,4),          
                 alias_blur=(0.4, 0.6),   
-                p=0.3
+                p=0.2
              ),
         
             A.ColorJitter(

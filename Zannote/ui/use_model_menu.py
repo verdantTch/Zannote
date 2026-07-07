@@ -113,7 +113,7 @@ class UseModelMenu(QMainWindow):
         center_layout.addStretch()
         
         content = QWidget()
-        content.setMinimumWidth(1000)
+        content.setMinimumWidth(900)
 
         content.setMaximumWidth(2000)
         
@@ -152,11 +152,19 @@ class UseModelMenu(QMainWindow):
     
         model_path_layout = QHBoxLayout()
     
+        # Après avoir créé le QLineEdit du répertoire des modèles
         self.model_dir_edit = QLineEdit(
             str(
                 Path(MODEL_PATH).resolve()
             )
         )
+        
+        # Récupérer la largeur du QLineEdit
+        model_dir_width = self.model_dir_edit.width()
+        
+        # Puis définir la même largeur pour le QComboBox
+        self.model_box = QComboBox()
+        self.model_box.setMinimumWidth(model_dir_width)
     
         browse_models = QPushButton(
             "Modifier..."
@@ -438,10 +446,11 @@ class UseModelMenu(QMainWindow):
             "Écart-type de l'erreur moyenne absolue."
         )
                 
-        layout.addWidget(
-            infos_group
-        )
-    
+        infos_group.setFixedWidth(450)  # ajuste la valeur selon la largeur souhaitée
+        
+        layout.addWidget(infos_group)
+        layout.setAlignment(infos_group, Qt.AlignmentFlag.AlignHCenter)
+        
         # -------------------------
         # Dossier images
         # -------------------------
