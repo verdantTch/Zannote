@@ -4,6 +4,7 @@ Permet d'évaluer les performances d'un modèle post entrainement
 '''
 
 import torch
+import json
 
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -103,13 +104,27 @@ def main():
     )
     
 
-    version_manager = VersionManager()
     
-    version_manager.save_metrics(
-        Path(MODEL_PATH).parent,
-        metrics
+    model_dir = Path(MODEL_PATH).parent
+    
+    metrics_path = model_dir / "metrics.json"
+    
+    with open(
+        metrics_path,
+        "w",
+        encoding="utf-8"
+    ) as f:
+    
+        json.dump(
+            metrics,
+            f,
+            indent=4
+        )
+    
+    print(
+        f"\nMétriques sauvegardées dans : {metrics_path}"
     )
-        
+            
     print("\n===== RESULTS =====\n")
     
     print(f"Threshold               : {metrics['threshold']:.2f}")
