@@ -4,83 +4,15 @@ Created on Tue Jun 23 10:04:47 2026
 
 @author: hugoz
 """
-# -*- coding: utf-8 -*-'
+# -*- coding: utf-8 -*-
+#
+# ANCIENNE ARCHITECTURE (3 niveaux, bottleneck 128->256, sans dropout ni Dice)
+# A utiliser uniquement pour charger/évaluer des checkpoints entraînés
+# AVANT l'ajout du 4e niveau de profondeur (enc4/dec4) et du dropout profond.
+# Ne pas utiliser pour de nouveaux entraînements.
 
 import torch
 import torch.nn as nn
-from config import BCE_WEIGHT, DICE_WEIGHT
-
-class DiceLoss(nn.Module):
-    """
-    Dice loss adaptée à une sortie de type heatmap (valeurs continues entre 0 et 1).
-    Complète bien BCEWithLogitsLoss car elle est directement sensible au
-    recouvrement (overlap) entre la heatmap prédite et la heatmap cible,
-    ce qui aide notamment quand les "points" à détecter sont petits et peu
-    nombreux par rapport au fond de l'image (fort déséquilibre de classes).
-    """
-
-    def __init__(
-        self,
-        smooth=1.0
-    ):
-
-        super().__init__()
-        self.smooth = smooth
-
-    def forward(
-        self,
-        logits,
-        targets
-    ):
-
-        probs = torch.sigmoid(logits)
-
-        probs = probs.reshape(probs.size(0), -1)
-        targets = targets.reshape(targets.size(0), -1)
-
-        intersection = (probs * targets).sum(dim=1)
-
-        dice_score = (2.0 * intersection + self.smooth) / (
-            probs.sum(dim=1) + targets.sum(dim=1) + self.smooth
-        )
-
-        return 1.0 - dice_score.mean()
-
-
-class BCEDiceLoss(nn.Module):
-    """
-    Combine BCEWithLogitsLoss (stable pour l'optimisation pixel par pixel)
-    et DiceLoss (sensible au recouvrement global de la zone d'intérêt).
-    bce_weight / dice_weight permettent de doser l'influence de chacune.
-    """
-
-    def __init__(
-        self,
-        bce_weight=BCE_WEIGHT,
-        dice_weight=DICE_WEIGHT
-    ):
-
-        super().__init__()
-
-        self.bce = nn.BCEWithLogitsLoss()
-        self.dice = DiceLoss()
-
-        self.bce_weight = bce_weight
-        self.dice_weight = dice_weight
-
-    def forward(
-        self,
-        logits,
-        targets
-    ):
-
-        bce_loss = self.bce(logits, targets)
-        dice_loss = self.dice(logits, targets)
-
-        return (
-            self.bce_weight * bce_loss
-            + self.dice_weight * dice_loss
-        )
 
 class DoubleConv(
     nn.Module
@@ -89,13 +21,12 @@ class DoubleConv(
     def __init__(
         self,
         in_channels,
-        out_channels,
-        dropout=0.0
+        out_channels
     ):
 
         super().__init__()
 
-        layers = [
+        self.conv = nn.Sequential(
 
             nn.Conv2d(
                 in_channels,
@@ -126,17 +57,7 @@ class DoubleConv(
             nn.ReLU(
                 inplace=True
             )
-        ]
-
-        # Dropout uniquement si demandé (réservé aux couches profondes)
-        if dropout > 0:
-            layers.append(
-                nn.Dropout2d(
-                    p=dropout
-                )
-            )
-
-        self.conv = nn.Sequential(*layers)
+        )
 
     def forward(
         self,
@@ -181,41 +102,14 @@ class EggUNet(
         self.pool3 = nn.MaxPool2d(
             2
         )
-
-        # --- Niveau de profondeur supplémentaire (NOUVEAU) ---
-        # Dropout léger : on entre dans les couches "profondes"
-        self.enc4 = DoubleConv(
-            128,
-            256,
-            dropout=0.09
-        )
-
-        self.pool4 = nn.MaxPool2d(
-            2
-        )
-
+        
         # Goulot d'étranglement
-        # Dropout le plus fort : c'est la couche la plus profonde du réseau
         self.bottleneck = DoubleConv(
-            256,
-            512,
-            dropout=0.15
+            128,
+            256
         )
         
         #  Décodeur
-        self.up4 = nn.ConvTranspose2d(
-            512,
-            256,
-            kernel_size=2,
-            stride=2
-        )
-
-        self.dec4 = DoubleConv(
-            512,
-            256,
-            dropout=0.09
-        )
-
         self.up3 = nn.ConvTranspose2d(
             256,
             128,
@@ -274,24 +168,11 @@ class EggUNet(
         e3 = self.enc3(p2)
         
         p3 = self.pool3(e3)
-
-        e4 = self.enc4(p3)
-
-        p4 = self.pool4(e4)
         
-        b = self.bottleneck(p4)
+        b = self.bottleneck(p3)
         
 
-        d4 = self.up4(b)
-
-        d4 = torch.cat(
-            [d4, e4],
-            dim=1
-        )
-
-        d4 = self.dec4(d4)
-
-        d3 = self.up3(d4)
+        d3 = self.up3(b)
 
 
         d3 = torch.cat(

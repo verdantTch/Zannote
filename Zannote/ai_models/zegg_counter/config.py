@@ -33,7 +33,7 @@ DICE_WEIGHT = 0.5
 
 # Validation
 VAL_RATIO = 0.15
-RANDOM_SEED = 10  # 42 Controle de la répartition aléatoire pour les dataset
+RANDOM_SEED = 27  # 42 Controle de la répartition aléatoire pour les dataset
 
 
 # Test
