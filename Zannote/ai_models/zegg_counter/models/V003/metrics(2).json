@@ -1,8 +1,0 @@
-{
-    "threshold": 0.9,
-    "min_distance": 15,
-    "mae": 5.52,
-    "mae_std": 11.22539977016409,
-    "relative_mae": 0.07325070255576364,
-    "relative_mae_std": 0.14561320623392712
-}
