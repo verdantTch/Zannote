@@ -28,7 +28,8 @@ from config import (
     EARLY_STOPPING_PATIENCE,
     WEIGHT_DECAY,
     BCE_WEIGHT,
-    DICE_WEIGHT
+    DICE_WEIGHT,
+    MODEL_ARCHITECTURE
     )
 from version_manager import (
     VersionManager
@@ -633,6 +634,7 @@ class Trainer:
             {
                 "version": version_name,
                 "date": datetime.now().isoformat(),
+                "architecture": MODEL_ARCHITECTURE,
                 "epochs_requested": N_EPOCHS,
                 "epochs_completed": epoch + 1,
                 "best_epoch": best_epoch,
