@@ -236,13 +236,13 @@ class ModelManager:
             parts = [version]
             
             if median_error is not None:
-                parts.append(f"Erreur med.: {100 * median_error:.2f}%")
+                parts.append(f"Err. med. rel. : {100 * median_error:.2f}%")
                 
             if mean_error is not None:
                 if std_error is not None:
-                    parts.append(f"Erreur moy. : {100 * mean_error:.2f}% ± {100 * std_error:.2f}%")
+                    parts.append(f"Err. moy. : {100 * mean_error:.2f}% ± {100 * std_error:.2f}%")
                 else:
-                    parts.append(f"Erreur : {100 * mean_error:.2f}%")
+                    parts.append(f"Err. moy. rel. : {100 * mean_error:.2f}%")
             
             if len(parts) == 1:
                 text = version

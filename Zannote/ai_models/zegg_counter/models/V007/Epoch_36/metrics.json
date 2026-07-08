@@ -1,0 +1,10 @@
+{
+    "threshold": 0.55,
+    "min_distance": 12,
+    "median_error": 2.0,
+    "median_relative_error": 0.02021535960991467,
+    "mae": 4.56,
+    "mae_std": 10.53216027223285,
+    "relative_mae": 0.09576365353886564,
+    "relative_mae_std": 0.25925653247043795
+}

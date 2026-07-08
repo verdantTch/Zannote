@@ -9,7 +9,7 @@ import torch
 
 from model import EggUNet
 
-checkpoint_path = r"D:\Downloads\checkpoint_epoch_24.pt"
+checkpoint_path = r"D:\Downloads\checkpoint_epoch_18.pt"
 
 device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"

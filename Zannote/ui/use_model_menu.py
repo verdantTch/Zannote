@@ -585,11 +585,42 @@ class UseModelMenu(QMainWindow):
     
         self.model_box.clear()
     
-        for version, text in self.model_manager.list_models_display():
+        best_index = -1
+        best_score = float("inf")
+    
+        for index, (version, text) in enumerate(
+            self.model_manager.list_models_display()
+        ):
     
             self.model_box.addItem(
                 text,
                 version
+            )
+    
+            info = self.model_manager.get_model_info(
+                version
+            )
+    
+            score = info.get(
+                "median_relative_error",
+                None
+            )
+    
+            if score is None:
+                score = info.get(
+                    "mae",
+                    None
+                )
+    
+            if score is not None and score < best_score:
+    
+                best_score = score
+                best_index = index
+    
+        if best_index >= 0:
+    
+            self.model_box.setCurrentIndex(
+                best_index
             )
     
     def create_toolbar(self):
@@ -696,7 +727,24 @@ class UseModelMenu(QMainWindow):
                 f"{mae_std:.2f}"
             )
         
-       
+        
+        threshold = info.get(
+            "threshold",
+            PEAK_THRESHOLD
+        )
+        
+        min_distance = info.get(
+            "min_distance",
+            PEAK_MIN_DISTANCE
+        )
+        
+        self.threshold.setValue(
+            float(threshold)
+        )
+        
+        self.min_distance.setValue(
+            int(min_distance)
+        )
     
     
     def choose_model_directory(self):
