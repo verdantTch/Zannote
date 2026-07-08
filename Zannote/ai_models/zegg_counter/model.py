@@ -146,50 +146,75 @@ class DoubleConv(
         return self.conv(x)
 
 
-class EggUNet(nn.Module):
+class EggUNet(
+    nn.Module
+):
 
     def __init__(self):
 
         super().__init__()
-
-        # =========================
+        
         # Encodeur
-        # =========================
-
         self.enc1 = DoubleConv(
             3,
             32
         )
-
-        self.pool1 = nn.MaxPool2d(2)
-
+        
+        self.pool1 = nn.MaxPool2d(
+            2
+        )
+        
         self.enc2 = DoubleConv(
             32,
             64
         )
-
-        self.pool2 = nn.MaxPool2d(2)
-
+        
+        self.pool2 = nn.MaxPool2d(
+            2
+        )
+        
         self.enc3 = DoubleConv(
             64,
             128
         )
-
-        self.pool3 = nn.MaxPool2d(2)
-
-        # =========================
-        # Bottleneck
-        # =========================
-
-        self.bottleneck = DoubleConv(
-            128,
-            256,
-            dropout=0.08
+        
+        self.pool3 = nn.MaxPool2d(
+            2
         )
 
-        # =========================
-        # Décodeur
-        # =========================
+        # --- Niveau de profondeur supplémentaire (NOUVEAU) ---
+        # Dropout léger : on entre dans les couches "profondes"
+        self.enc4 = DoubleConv(
+            128,
+            256,
+            dropout=0.05
+        )
+
+        self.pool4 = nn.MaxPool2d(
+            2
+        )
+
+        # Goulot d'étranglement
+        # Dropout le plus fort : c'est la couche la plus profonde du réseau
+        self.bottleneck = DoubleConv(
+            256,
+            512,
+            dropout=0.1
+        )
+        
+        #  Décodeur
+        self.up4 = nn.ConvTranspose2d(
+            512,
+            256,
+            kernel_size=2,
+            stride=2
+        )
+
+        self.dec4 = DoubleConv(
+            512,
+            256,
+            dropout=0.05
+        )
 
         self.up3 = nn.ConvTranspose2d(
             256,
@@ -197,24 +222,24 @@ class EggUNet(nn.Module):
             kernel_size=2,
             stride=2
         )
-
+        
         self.dec3 = DoubleConv(
             256,
             128
         )
-
+        
         self.up2 = nn.ConvTranspose2d(
             128,
             64,
             kernel_size=2,
             stride=2
         )
-
+        
         self.dec2 = DoubleConv(
             128,
             64
         )
-
+        
         self.up1 = nn.ConvTranspose2d(
             64,
             32,
@@ -226,37 +251,48 @@ class EggUNet(nn.Module):
             64,
             32
         )
-
-        # =========================
+        
         # Sortie
-        # =========================
-
         self.final = nn.Conv2d(
             32,
             1,
             kernel_size=1
         )
-
+        
     def forward(
         self,
         x
     ):
-
         e1 = self.enc1(x)
 
         p1 = self.pool1(e1)
-
+        
         e2 = self.enc2(p1)
-
+        
         p2 = self.pool2(e2)
-
+        
         e3 = self.enc3(p2)
-
+        
         p3 = self.pool3(e3)
 
-        b = self.bottleneck(p3)
+        e4 = self.enc4(p3)
 
-        d3 = self.up3(b)
+        p4 = self.pool4(e4)
+        
+        b = self.bottleneck(p4)
+        
+
+        d4 = self.up4(b)
+
+        d4 = torch.cat(
+            [d4, e4],
+            dim=1
+        )
+
+        d4 = self.dec4(d4)
+
+        d3 = self.up3(d4)
+
 
         d3 = torch.cat(
             [d3, e3],
@@ -264,23 +300,23 @@ class EggUNet(nn.Module):
         )
 
         d3 = self.dec3(d3)
-
+        
         d2 = self.up2(d3)
 
         d2 = torch.cat(
             [d2, e2],
             dim=1
         )
-
+        
         d2 = self.dec2(d2)
-
+        
         d1 = self.up1(d2)
 
         d1 = torch.cat(
             [d1, e1],
             dim=1
         )
-
+        
         d1 = self.dec1(d1)
-
+        
         return self.final(d1)
